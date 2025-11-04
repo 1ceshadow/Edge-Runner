@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float moveSpeed = 6f;
 
     [Header("瞬移闪现设置")]
-    [SerializeField] private float dashDistance = 4.5f;
+    [SerializeField] private float dashDistance = 3.9f;
     [SerializeField] private float dashCooldown = 0.2f;
 
     [Header("闪现音效")]
