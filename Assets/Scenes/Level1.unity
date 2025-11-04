@@ -11714,9 +11714,9 @@ GameObject:
   - component: {fileID: 834425224}
   - component: {fileID: 834425223}
   - component: {fileID: 834425222}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Billboard
-  m_TagString: WallHorizontal
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -41955,8 +41955,20 @@ PrefabInstance:
       value: WallVertical
       objectReference: {fileID: 0}
     - target: {fileID: 3212447828365466048, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: flipWithMovement
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3212447828365466048, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: wallCheckDistance
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3212447828365466048, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
       propertyPath: wallHorizontalTag
       value: WallHorizontal
+      objectReference: {fileID: 0}
+    - target: {fileID: 3212447828365466048, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: wallLayerMask.m_Bits
+      value: 256
       objectReference: {fileID: 0}
     - target: {fileID: 5308266556534980357, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
       propertyPath: m_Name

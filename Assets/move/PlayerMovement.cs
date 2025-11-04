@@ -1,82 +1,122 @@
-
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 
-[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Rigidbody2D), typeof(AudioSource))]
 public class PlayerMovement : MonoBehaviour
 {
+    //===================================================================
+    //============================ 参数设置 =============================
+    //===================================================================
+
     [Header("移动设置")]
     [SerializeField] private float moveSpeed = 6f;
 
     [Header("瞬移闪现设置")]
     [SerializeField] private float dashDistance = 3.9f;
     [SerializeField] private float dashCooldown = 0.2f;
-
-    [Header("闪现音效")]
     [SerializeField] private AudioClip dashAudioClip;
 
-
     [Header("时缓设置")]
-    [SerializeField] private float timeSlowScale = 0.3f;           // 时间变慢倍数
-    [SerializeField] private float timeSlowPlayerSpeed = 20f;      // 玩家在时缓中的速度
-    [SerializeField] private float timeSlowDuration = 5f;          // 持续时间
-    [SerializeField] private float timeSlowCooldown = 3f;          // 冷却时间
-
-    [Header("时缓音效设置")]
-    [SerializeField] private AudioClip timeSlowStartClip;  // 启动音效
-    // [SerializeField] private AudioClip timeSlowEndClip;    // 结束音效
-    private AudioSource audioSource;
-
-
-    private bool isTimeSlowed = false;
-    private bool canTimeSlow = true;
-    private float defaultMoveSpeed;
-
-    private Vector2? pendingDashPosition = null;  // 标记待瞬移位置
+    [SerializeField] private float timeSlowScale = 0.3f;
+    [SerializeField] private float timeSlowPlayerSpeed = 20f;
+    [SerializeField] private float timeSlowDuration = 5f;
+    [SerializeField] private float timeSlowCooldown = 3f;
+    [SerializeField] private AudioClip timeSlowStartClip;
 
     [Header("角色朝向设置")]
-    public bool flipWithMovement = true; // 是否根据移动方向翻转AA
-    public float rotationSmoothness = 8f; // 旋转平滑度
+    private float rotationSmoothness = 8f;
+
+    /*
+    [Header("爬墙标签")]
+    [SerializeField] private string wallHorizontalTag = "WallHorizontal";
+    [SerializeField] private string wallVerticalTag = "WallVertical";
+    */
+    [Header("爬墙检测")]
+    [SerializeField] private float wallCheckExtra = 0.8f;  // 超出边缘的缓冲
+    [SerializeField] private LayerMask wallLayerMask = -1;    // 墙体层（Inspector设置）
+    
+    //private string BillboardLayerName = "Billboard";
+
+    //===================================================================
+    //============================ 私有字段 =============================
+    //===================================================================
 
     private Rigidbody2D rb;
+    private CircleCollider2D circleCollider;
+    private AudioSource audioSource;
     private PlayerWallCollision wallCollision;
     private PlayerInputActions inputActions;
 
     private Vector2 moveInput;
     private Vector2 lastMoveDirection = Vector2.right;
 
-    private bool canDash = true;
-    private bool isDashing = false;  // 防止连点
+    private bool isDashing = false;
+    private bool canDash = true; // 两个有同时存在的必要，以便后续开发
+    private bool isTimeSlowed = false;
+    private bool canTimeSlow = true;
 
-    // 角色朝向相关
+    private float defaultMoveSpeed;
+    private Vector2? pendingDashPosition = null;
     private float targetRotation = 90f;
+
+    // 爬墙状态
+    //private bool isStickingWallHorizontal = false;
+    //private bool isStickingWallVertical = false;
+    private float wallCheckDistance;  // 检测距离
+    // 精细化爬墙状态（4个方向独立检测）
+    private bool isTouchingTopWall = false;    // 碰到上面的墙
+    private bool isTouchingBottomWall = false; // 碰到下面的墙  
+    private bool isTouchingLeftWall = false;   // 碰到左边的墙
+    private bool isTouchingRightWall = false;  // 碰到右边的墙
+
+    // 视觉缓存
+    private Sprite playerSprite;
+    private int sortingLayerID;
+    private int sortingOrder;
+
+    //===================================================================
+    //============================ 初始化 ==============================
+    //===================================================================
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        defaultMoveSpeed = moveSpeed;
         audioSource = GetComponent<AudioSource>();
+        wallCollision = GetComponent<PlayerWallCollision>();
+        inputActions = new PlayerInputActions();
+        circleCollider = GetComponent<CircleCollider2D>();
 
         rb.bodyType = RigidbodyType2D.Dynamic;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         rb.gravityScale = 0f;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        wallCollision = GetComponent<PlayerWallCollision>();
-        inputActions = new PlayerInputActions();
+        defaultMoveSpeed = moveSpeed;
+        wallCheckDistance = circleCollider.radius + wallCheckExtra; // 适配广告牌探测距离；
+
+        // 缓存 SpriteRenderer
+        CacheVisuals();
+    }
+
+    private void CacheVisuals()
+    {
+        var sr = GetComponentInChildren<SpriteRenderer>();
+        if (sr != null)
+        {
+            playerSprite = sr.sprite;
+            sortingLayerID = sr.sortingLayerID;
+            sortingOrder = sr.sortingOrder;
+        }
     }
 
     private void OnEnable()
     {
         inputActions.Enable();
-
-        inputActions.Player.Move.performed += ctx => OnMovePerformed(ctx);
+        inputActions.Player.Move.performed += OnMovePerformed;
         inputActions.Player.Move.canceled += ctx => moveInput = Vector2.zero;
         inputActions.Player.Dash.performed += ctx => TryDash();
-
         inputActions.Player.TimeSlow.performed += ctx => TryTimeSlow();
-
     }
 
     private void OnDisable()
@@ -84,106 +124,79 @@ public class PlayerMovement : MonoBehaviour
         inputActions.Disable();
     }
 
-    private void OnMovePerformed(InputAction.CallbackContext ctx)
+    //===================================================================
+    //============================ 物理更新 =============================
+    //===================================================================
+
+    private void FixedUpdate()
     {
-        Vector2 input = ctx.ReadValue<Vector2>();
+        // 1. 处理瞬移
+        if (pendingDashPosition.HasValue)
+        {
+            rb.MovePosition(pendingDashPosition.Value);
+            pendingDashPosition = null;
+            // 重置爬墙状态
+            //ResetWallSticking();
+            return;  // 本帧只做瞬移
+        }
 
+        // 2. 闪现中不移动
+        if (isDashing) return;
 
-        moveInput = input;
+        // 3. 精细化爬墙检测 & 运动限制
+        UpdateWallTouching();
+        Vector2 filteredInput = GetFilteredMoveInput();
 
+        // 4. 正常移动
+        //Vector2 filteredInput = GetFilteredMoveInput();
+        Vector2 movement = filteredInput * moveSpeed * Time.fixedDeltaTime;
+       
+
+        if (wallCollision == null || !wallCollision.WillCollide(filteredInput, moveSpeed * Time.fixedDeltaTime))
+        {
+            rb.MovePosition(rb.position + movement);
+        }
+
+        // 5. 更新朝向
         if (moveInput != Vector2.zero)
         {
             lastMoveDirection = moveInput.normalized;
             UpdateCharacterRotation();
         }
+        ApplyRotationSmoothly();
+
     }
+
+    //===================================================================
+    //============================ 输入处理 =============================
+    //===================================================================
+
+    private void OnMovePerformed(InputAction.CallbackContext ctx)
+    {
+        moveInput = ctx.ReadValue<Vector2>();
+    }
+
+    //===================================================================
+    //============================ 瞬移技能 =============================
+    //===================================================================
 
     private void TryDash()
     {
-        if (canDash && !isDashing)
-            StartCoroutine(InstantDash());
+        if (!canDash || isDashing) return;
+        StartCoroutine(InstantDash());
     }
 
-    private void FixedUpdate()
-    {
-        // 1. 处理待瞬移
-        if (pendingDashPosition.HasValue)
-        {
-            rb.MovePosition(pendingDashPosition.Value);
-            pendingDashPosition = null;
-            return;  // 本帧只做瞬移
-        }
-
-        // 2. 正常移动
-        if (isDashing) return;
-
-
-        Vector2 movement = moveInput * moveSpeed * Time.fixedDeltaTime;
-
-
-        if (wallCollision == null || !wallCollision.WillCollide(moveInput, moveSpeed * Time.fixedDeltaTime))
-        {
-            rb.MovePosition(rb.position + movement);
-        }
-
-        // 持续更新角色朝向（更平滑）
-        if (moveInput != Vector2.zero && flipWithMovement)
-        {
-            UpdateCharacterRotation();
-        }
-
-        // 应用旋转平滑
-        ApplyRotationSmoothly();
-    }
-
-    /// <summary>
-    /// 更新角色朝向
-    /// </summary>
-    private void UpdateCharacterRotation()
-    {
-        if (moveInput == Vector2.zero) return;
-
-        // 计算移动方向的角度（以度为单位）
-        float angle = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg + 90f;
-
-        // 设置目标旋转角度
-        targetRotation = angle;
-
-
-    }
-
-    /// <summary>
-    /// 平滑应用旋转
-    /// </summary>
-    private void ApplyRotationSmoothly()
-    {
-        if (rotationSmoothness <= 0)
-        {
-            // 无平滑，直接设置旋转
-            transform.rotation = Quaternion.Euler(0f, 0f, targetRotation);
-        }
-        else
-        {
-            // 平滑旋转
-            Quaternion currentRotation = transform.rotation;
-            Quaternion targetQuat = Quaternion.Euler(0f, 0f, targetRotation);
-            transform.rotation = Quaternion.Lerp(currentRotation, targetQuat, rotationSmoothness * Time.deltaTime);
-        }
-    }
-
-    // 瞬移闪现
     private IEnumerator InstantDash()
     {
         isDashing = true;
         canDash = false;
 
         // 1. 获取方向
-        Vector2 direction = moveInput != Vector2.zero ? moveInput.normalized : lastMoveDirection;
-        if (direction == Vector2.zero) direction = Vector2.right;
+        Vector2 dir = moveInput != Vector2.zero ? moveInput.normalized : lastMoveDirection;
 
         // 2. 计算安全位置
         Vector2 start = rb.position;
-        Vector2 target = start + direction * dashDistance;
+        Vector2 target = start + dir * dashDistance;
         Vector2 safeTarget = GetSafeDashPosition(start, target);
 
         // 3. 瞬间移动（必须在 FixedUpdate 里！）
@@ -194,69 +207,47 @@ public class PlayerMovement : MonoBehaviour
         // 4. 清除速度
         rb.linearVelocity = Vector2.zero;
 
-        // 5. 启动冷却（独立协程）
-        StartCoroutine(DashCooldown());
-
-        // 6. 特效
+        // 音效和特效
+        PlayOneShot(dashAudioClip);
         StartCoroutine(DashVisualEffect(start, safeTarget));
 
-        // 7. 状态恢复
+        // 5. 启动冷却（独立协程）
         isDashing = false;
+
+        yield return new WaitForSeconds(dashCooldown);
+
+        canDash = true;
+        
     }
 
     private Vector2 GetSafeDashPosition(Vector2 start, Vector2 target)
     {
         Vector2 dir = (target - start).normalized;
         float dist = Vector2.Distance(start, target);
-
         RaycastHit2D hit = Physics2D.Raycast(start, dir, dist, LayerMask.GetMask("Wall"));
-        if (hit.collider != null)
-        {
-            return hit.point - dir * 0.05f;  // 停在墙前一点
-        }
-        return target;
-    }
-
-
-    private IEnumerator DashCooldown()
-    {
-        yield return new WaitForSeconds(dashCooldown);
-        canDash = true;
+        return hit.collider != null ? hit.point - dir * 0.01f : target;
     }
 
     private IEnumerator DashVisualEffect(Vector2 start, Vector2 end)
     {
-        // 🎧 播放启动音效
-        if (dashAudioClip && audioSource)
-            audioSource.PlayOneShot(dashAudioClip);
+        // 闪光
+        CreateGhost(end, 0.7f, 0.1f);
 
-
-        // 简易闪光 + 残影
-        var flash = new GameObject("DashFlash");
-        var sr = flash.AddComponent<SpriteRenderer>();
-        sr.sprite = GetComponentInChildren<SpriteRenderer>().sprite;
-        sr.color = new Color(1, 1, 1, 0.7f);
-        flash.transform.position = end;
-        flash.transform.localScale = transform.localScale;
-        Destroy(flash, 0.1f);
-
-        // 残影（可选）
+        // 残影
         for (int i = 0; i < 3; i++)
         {
-            float t = i / 3f;
+            float t = (i + 1) / 4f;
             Vector2 pos = Vector2.Lerp(start, end, t);
-            var ghost = new GameObject("Ghost");
-            ghost.transform.position = pos;
-            ghost.transform.localScale = transform.localScale;
-            var gsr = ghost.AddComponent<SpriteRenderer>();
-            gsr.sprite = GetComponentInChildren<SpriteRenderer>().sprite;
-            gsr.color = new Color(1, 1, 1, 0.5f - i * 0.15f);
-            Destroy(ghost, 0.2f);
+            float alpha = 0.5f - i * 0.15f;
+            CreateGhost(pos, alpha, 0.2f);
             yield return new WaitForSeconds(0.03f);
         }
     }
 
-    // ======== 时缓技能（单次触发版） ========
+    //===================================================================
+    //============================ 时缓技能 =============================
+    //===================================================================
+
     private void TryTimeSlow()
     {
         if (!canTimeSlow || isTimeSlowed) return;
@@ -265,65 +256,39 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator TimeSlowRoutine()
     {
-        if (isTimeSlowed) yield break;
-
-        // 启动时缓
         isTimeSlowed = true;
         canTimeSlow = false;
 
-        // 🎧 播放时缓启动音效
-        if (timeSlowStartClip && audioSource)
-            audioSource.PlayOneShot(timeSlowStartClip);
-
-        // 特效
+        PlayOneShot(timeSlowStartClip);
         StartCoroutine(TimeSlowVisualEffect());
 
-        // 改变时间与速度
         Time.timeScale = timeSlowScale;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
         moveSpeed = timeSlowPlayerSpeed;
 
-        // 等待时缓持续时间（不受 timeScale 影响）
         yield return new WaitForSecondsRealtime(timeSlowDuration);
 
-        // 🎧 播放时缓结束音效
-        // if (timeSlowEndClip && audioSource)
-        //     audioSource.PlayOneShot(timeSlowEndClip);
-
-        // 恢复正常状态
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
         moveSpeed = defaultMoveSpeed;
         isTimeSlowed = false;
 
-        // 进入冷却阶段
         yield return new WaitForSecondsRealtime(timeSlowCooldown);
         canTimeSlow = true;
     }
 
-
-
     private IEnumerator TimeSlowVisualEffect()
     {
-        var playerSR = GetComponentInChildren<SpriteRenderer>();
-        if (playerSR == null)
-            yield break;
+        if (playerSprite == null) yield break;
 
-        // 创建光罩对象
         GameObject overlay = new GameObject("TimeSlowOverlay");
+        overlay.transform.SetParent(transform, false);
+
         var sr = overlay.AddComponent<SpriteRenderer>();
-
-        // 关键：使用同样的 Sorting Layer，并提高排序
-        sr.sortingLayerID = playerSR.sortingLayerID;
-        sr.sortingOrder = playerSR.sortingOrder + 1;
-
-        // 蓝色泛光
+        sr.sprite = playerSprite;
+        sr.sortingLayerID = sortingLayerID;
+        sr.sortingOrder = sortingOrder + 1;
         sr.color = new Color(0.3f, 0.6f, 1f, 0.25f);
-        sr.sprite = playerSR.sprite;  // 用同样的贴图当作发光覆盖层
-
-        overlay.transform.SetParent(transform);
-        overlay.transform.localPosition = Vector3.zero;
-        overlay.transform.localScale = Vector3.one;
 
         float pulse = 0f;
         while (isTimeSlowed)
@@ -337,7 +302,126 @@ public class PlayerMovement : MonoBehaviour
         Destroy(overlay);
     }
 
-    // Exit
+    //===================================================================
+    //============================ 旋转系统 =============================
+    //===================================================================
 
+    private void UpdateCharacterRotation()
+    {
+        if (moveInput == Vector2.zero) return;
+        float angle = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg + 90f;
+        targetRotation = angle;
+    }
+
+    private void ApplyRotationSmoothly()
+    {
+        Quaternion target = Quaternion.Euler(0f, 0f, targetRotation);
+        if (rotationSmoothness <= 0f)
+        {
+            transform.rotation = target;
+        }
+        else
+        {
+            transform.rotation = Quaternion.Lerp(transform.rotation, target, rotationSmoothness * Time.deltaTime);
+        }
+    }
+
+    //===================================================================
+    //============================ 精细化爬墙系统 =====================
+    //===================================================================
+
+    /// <summary>
+    /// 每帧检测4个方向的墙体接触
+    /// </summary>
+    private void UpdateWallTouching()
+    {
+        Vector2 pos = transform.position;
+
+        // 4方向Raycast检测（从角色中心向外射线）
+        isTouchingTopWall = Physics2D.Raycast(pos, Vector2.up, wallCheckDistance, wallLayerMask).collider != null;
+        isTouchingBottomWall = Physics2D.Raycast(pos, Vector2.down, wallCheckDistance, wallLayerMask).collider != null;
+        isTouchingLeftWall = Physics2D.Raycast(pos, Vector2.left, wallCheckDistance, wallLayerMask).collider != null;
+        isTouchingRightWall = Physics2D.Raycast(pos, Vector2.right, wallCheckDistance, wallLayerMask).collider != null;
+
+
+        // Debug（测试后可删除）
+        if (isTouchingTopWall || isTouchingBottomWall || isTouchingLeftWall || isTouchingRightWall)
+        {
+            Debug.Log($"墙体接触: 上={isTouchingTopWall}, 下={isTouchingBottomWall}, 左={isTouchingLeftWall}, 右={isTouchingRightWall}");
+        }
+    }
+
+    /// <summary>
+    /// 根据墙体接触状态过滤输入（精细化限制）
+    /// 碰到上面的墙 → 不能向上
+    /// 碰到右边的墙 → 不能向右
+    /// 碰到左边的墙 → 不能向左  
+    /// 碰到下面的墙 → 不能向下
+    /// </summary>
+    private Vector2 GetFilteredMoveInput()
+    {
+        Vector2 filtered = moveInput;
+
+        // 只限制"向墙方向"的移动
+        if (isTouchingTopWall && filtered.y < 0f) filtered.y = 0f;    // 上墙 → 禁向下
+        if (isTouchingBottomWall && filtered.y > 0f) filtered.y = 0f;    // 下墙 → 禁向上
+        if (isTouchingLeftWall && filtered.x > 0f) filtered.x = 0f;    // 左墙 → 禁向右
+        if (isTouchingRightWall && filtered.x < 0f) filtered.x = 0f;    // 右墙 → 禁向左
+
+        return filtered;
+    }
+
+    /// <summary>
+    /// 瞬移后重置所有墙体接触状态
+    /// </summary>
+    private void ResetWallTouching()
+    {
+        isTouchingTopWall = false;
+        isTouchingBottomWall = false;
+        isTouchingLeftWall = false;
+        isTouchingRightWall = false;
+    }
+
+    //===================================================================
+    //============================ 工具方法 =============================
+    //===================================================================
+
+    private void PlayOneShot(AudioClip clip)
+    {
+        if (clip && audioSource) audioSource.PlayOneShot(clip);
+    }
+
+    private void CreateGhost(Vector2 pos, float alpha, float lifetime)
+    {
+        if (playerSprite == null) return;
+
+        GameObject ghost = new GameObject("DashGhost");
+        ghost.transform.position = pos;
+        ghost.transform.localScale = transform.localScale;
+
+        var sr = ghost.AddComponent<SpriteRenderer>();
+        sr.sprite = playerSprite;
+        sr.sortingLayerID = sortingLayerID;
+        sr.sortingOrder = sortingOrder;
+        sr.color = new Color(1f, 1f, 1f, alpha);
+
+        Destroy(ghost, lifetime);
+    }
+
+    //===================================================================
+    //============================ 可视化调试 =============================
+    //===================================================================
+    private void OnDrawGizmosSelected()
+    {
+        if (!Application.isPlaying) return;
+
+        Vector2 pos = transform.position;
+        float dist = wallCheckDistance;
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawRay(pos, Vector2.up * dist);
+        Gizmos.DrawRay(pos, Vector2.down * dist);
+        Gizmos.DrawRay(pos, Vector2.left * dist);
+        Gizmos.DrawRay(pos, Vector2.right * dist);
+    }
 }
-
