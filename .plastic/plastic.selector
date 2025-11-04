@@ -1,0 +1,4 @@
+repository "NGR Gamejam@tj_bysx@cloud.cn"
+  path "/"
+    br "/main"
+    co "/main"
