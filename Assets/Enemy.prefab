@@ -173,7 +173,7 @@ MonoBehaviour:
   bulletCount: 8
   spreadAngle: 10
   bulletPrefab: {fileID: 7454175211541953336, guid: 92b285a65b7a76c4683651d0c8f88568, type: 3}
-  bulletSpeed: 8
-  bulletMaxDistance: 15
+  bulletSpeed: 12
+  bulletMaxDistance: 16
   maxHealth: 1
   currentHealth: 0

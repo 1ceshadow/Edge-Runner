@@ -11,7 +11,7 @@ public class PlayerCombat : MonoBehaviour
     [Header("攻击设置")]
     public float attackRange = 2.5f;
     public float attackAngle = 90f;
-    public float attackCooldown = 0.2f;
+    public float attackCooldown = 0.3f;
     public int attackDamage = 1;
     // public LayerMask enemyLayer;
 

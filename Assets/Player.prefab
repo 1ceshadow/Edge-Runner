@@ -251,8 +251,10 @@ MonoBehaviour:
   timeSlowDuration: 5
   timeSlowCooldown: 5
   timeSlowStartClip: {fileID: 8300000, guid: e1c9e8ba93903414b915e5ff2de973c8, type: 3}
-  flipWithMovement: 1
-  rotationSmoothness: 8
+  wallCheckExtra: 0.8
+  wallLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &7421646976793643936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,7 +299,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   attackRange: 2.5
   attackAngle: 150
-  attackCooldown: 0.5
+  attackCooldown: 0.3
   attackDamage: 1
   attackSound: {fileID: 8300000, guid: 7ba64ea93bcaede4b94415d5a94bdc07, type: 3}
   attackEffectColor: {r: 1, g: 0.5, b: 0, a: 0.3}
