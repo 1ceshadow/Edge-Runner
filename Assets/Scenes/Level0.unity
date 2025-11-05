@@ -7404,7 +7404,7 @@ GameObject:
   - component: {fileID: 585891421}
   - component: {fileID: 585891425}
   m_Layer: 0
-  m_Name: Square
+  m_Name: WinPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
