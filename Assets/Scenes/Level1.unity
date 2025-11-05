@@ -42369,6 +42369,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 939577091634522217, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: attackRange
+      value: 2.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 939577091634522217, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
       propertyPath: attackCooldown
       value: 0.2
       objectReference: {fileID: 0}
