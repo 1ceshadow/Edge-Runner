@@ -395,6 +395,15 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     private Vector2 GetFilteredMoveInput()
     {
+        // 统计碰到的墙的数量 >= 2
+        bool MultipleWalls = 
+        (isTouchingTopWall    ? 1 : 0) +
+        (isTouchingBottomWall ? 1 : 0) +
+        (isTouchingLeftWall   ? 1 : 0) +
+        (isTouchingRightWall  ? 1 : 0) >= 2;
+        // 同时碰到多个墙，不限制玩家移动
+        if (MultipleWalls) return moveInput;
+    
         Vector2 filtered = moveInput;
 
         // 只限制"向墙方向"的移动
