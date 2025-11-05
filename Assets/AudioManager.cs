@@ -90,13 +90,13 @@ public class AudioManager : MonoBehaviour
     // 淡入效果
     private IEnumerator FadeIn(float fadeTime)
     {
-        bgmSource.volume = 0f;
+        bgmSource.volume = 0.2f;
         float elapsed = 0f;
 
         while (elapsed < fadeTime)
         {
             elapsed += Time.deltaTime;
-            bgmSource.volume = Mathf.Lerp(0f, 1f, elapsed / fadeTime);
+            bgmSource.volume = Mathf.Lerp(0.2f, 1f, elapsed / fadeTime);
             yield return null;
         }
         bgmSource.volume = 1f;
@@ -126,11 +126,11 @@ public class AudioManager : MonoBehaviour
     }
 
     // 可选：手动控制音量（UI滑块用）
-    public void SetBGMVolume(float volume)
-    {
-        if (bgmSource != null)
-            bgmSource.volume = volume;
-    }
+    // public void SetBGMVolume(float volume)
+    // {
+    //     if (bgmSource != null)
+    //         bgmSource.volume = volume;
+    // }
 
     // 获取当前BGM状态
     public bool IsBGMPlaying => bgmSource != null && bgmSource.isPlaying;

@@ -242,19 +242,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3726f28942ae7045ba4eea690b772f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  moveSpeed: 6.5
-  dashDistance: 3.5
-  dashCooldown: 0.3
-  dashAudioClip: {fileID: 8300000, guid: 1d68287671c652f44b0b326ae86b2012, type: 3}
+  moveSpeed: 6.2
+  dashDistance: 3.9
+  dashCooldown: 0.2
+  dashAudioClip: {fileID: 8300000, guid: 6e237870b57aa934895ec4478190cd88, type: 3}
   timeSlowScale: 0.3
   timeSlowPlayerSpeed: 20
   timeSlowDuration: 5
-  timeSlowCooldown: 5
+  timeSlowCooldown: 3
   timeSlowStartClip: {fileID: 8300000, guid: e1c9e8ba93903414b915e5ff2de973c8, type: 3}
   wallCheckExtra: 0.8
   wallLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 256
 --- !u!114 &7421646976793643936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,7 +297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf9b05caae8347d46b70c2e41330a675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  attackRange: 2.5
+  attackRange: 10
   attackAngle: 150
   attackCooldown: 0.3
   attackDamage: 1

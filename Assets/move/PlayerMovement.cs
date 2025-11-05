@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
     //===================================================================
 
     [Header("移动设置")]
-    [SerializeField] private float moveSpeed = 6f;
+    [SerializeField] private float moveSpeed = 6.2f;
 
     [Header("瞬移闪现设置")]
     [SerializeField] private float dashDistance = 3.9f;
@@ -197,7 +197,7 @@ public class PlayerMovement : MonoBehaviour
         // 2. 计算安全位置
         Vector2 start = rb.position;
         Vector2 target = start + dir * dashDistance;
-        Vector2 safeTarget = GetSafeDashPosition(start, target);
+        Vector2 safeTarget = GetSafeDashPositionHybrid(start, target);
 
         // 3. 瞬间移动（必须在 FixedUpdate 里！）
         // → 方案：用标志位，让 FixedUpdate 执行一次瞬移
@@ -219,13 +219,48 @@ public class PlayerMovement : MonoBehaviour
         canDash = true;
         
     }
-
-    private Vector2 GetSafeDashPosition(Vector2 start, Vector2 target)
+    //计算安全瞬移位置（混合射线+圆形检测）
+    private Vector2 GetSafeDashPositionHybrid(Vector2 start, Vector2 target)
     {
         Vector2 dir = (target - start).normalized;
-        float dist = Vector2.Distance(start, target);
-        RaycastHit2D hit = Physics2D.Raycast(start, dir, dist, LayerMask.GetMask("Wall"));
-        return hit.collider != null ? hit.point - dir * 0.01f : target;
+        float totalDist = Vector2.Distance(start, target);
+        float playerRadius = GetPlayerRadius();
+        
+        // 第一步：快速射线检测
+        RaycastHit2D hit = Physics2D.Raycast(start, dir, totalDist, LayerMask.GetMask("Wall"));
+        if (hit.collider == null)
+            return target; // 没有碰撞，直接到达目标
+        
+        // 第二步：精确圆形检测找到碰撞点
+        float collisionDist = hit.distance;
+        RaycastHit2D preciseHit = Physics2D.CircleCast(start, playerRadius, dir, collisionDist + 0.5f, LayerMask.GetMask("Wall"));
+        
+        if (preciseHit.collider != null)
+        {
+            collisionDist = preciseHit.distance;
+        }
+        
+        // 第三步：计算安全距离（考虑玩家朝向和墙面法线）
+        float safeDistance = CalculateSafeDistance(dir, preciseHit.normal, playerRadius);
+        float finalDist = Mathf.Max(0, collisionDist - safeDistance);
+        
+        return start + dir * finalDist;
+    }
+    // 计算安全距离（考虑玩家朝向和墙面法线）
+    private float CalculateSafeDistance(Vector2 moveDir, Vector2 wallNormal, float playerRadius)
+    {
+        // 根据碰撞角度调整安全距离
+        float dot = Vector2.Dot(moveDir, -wallNormal);
+        float angleFactor = Mathf.Clamp(dot, 0.5f, 1f);
+
+        return playerRadius * 1.2f * angleFactor;
+    }
+    
+    private float GetPlayerRadius()
+    {
+        // 获取玩家碰撞体半径
+        CircleCollider2D collider = GetComponent<CircleCollider2D>();
+        return collider != null ? collider.radius : 0.3f;
     }
 
     private IEnumerator DashVisualEffect(Vector2 start, Vector2 end)

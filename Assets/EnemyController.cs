@@ -10,7 +10,7 @@ public class EnemyController : MonoBehaviour
     public GameObject bulletPrefab;
     
     [Header("子弹参数")]
-    public float bulletSpeed = 11.5f;
+    public float bulletSpeed = 11.8f;
     public float bulletMaxDistance = 16f;
     
     private Transform player;
