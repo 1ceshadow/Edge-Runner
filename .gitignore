@@ -1,35 +1,77 @@
-Library
-library
-Temp
-temp
-Obj
-obj
-Build
-build
-Builds
-builds
-UserSettings
-usersettings
-MemoryCaptures
-memorycaptures
-Logs
-logs
-**/Assets/AssetStoreTools
-**/assets/assetstoretools
-/Assets/Plugins/PlasticSCM*
-/assets/plugins/PlasticSCM*
-/Assets/_Recovery*
-/Assets/_Recovery
-*.private
-*.private.meta
-^*.private.[0-9]+$
-^*.private.[0-9]+.meta$
-.vs
-.vscode
-.idea
-.gradle
-ExportedObj
-.consulo
+# ========================================
+# Unity 项目 .gitignore（整合优化版）
+# 适用于 Unity 2019+，支持 Addressables、Visual Scripting、Git LFS
+# 来源：GitHub 官方 + 用户补充 + 去重整合
+# ========================================
+
+# ====================
+# Unity 编辑器缓存（必须忽略）
+# ====================
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emory[Cc]aptures/
+/[Rr]ecordings/
+
+# 包管理缓存（建议保留 manifest.json，但可忽略锁文件）
+/[Pp]ackages/packages-lock.json
+
+# 崩溃与诊断
+/[Cc]rash[Rr]eports/
+sysinfo.txt
+mono_crash.*
+crashlytics-build.properties
+
+# ====================
+# 构建产物（不要提交）
+# ====================
+*.apk
+*.aab
+*.app
+*.unitypackage
+*.unitypackage.meta
+
+# 平台构建目录
+/[Aa]ndroid/[Bb]uild/
+/[Aa]ndroid/[Ll]ogs/
+/[Ii][Oo][Ss]/[Bb]uild/
+/[Xx]code/[Dd]erived[Dd]ata/
+/[Ww]eb[Gg][Ll]/
+/[Oo]utput/
+/[Ss]erver[Dd]ata/
+
+# Addressables 构建缓存
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/link.xml*
+/[Aa]ssets/[Aa]ddressables_Temp*
+/[Aa]ssets/[Ss]treaming[Aa]ssets/aa*
+/[Aa]ssets/[Ss]treaming[Aa]ssets/aa.meta
+
+# Visual Scripting 自动生成
+/[Aa]ssets/[Uu]nity.[Vv]isual[Ss]cripting.[Gg]enerated/
+
+# TestRunner 自动场景
+/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# 性能测试残留
+/[Aa]ssets/[Rr]esources/[Pp]erformance[Tt]est[Rr]un*/
+
+# Blender 备份
+*.blend1
+*.blend1.meta
+
+# ====================
+# IDE / 编辑器配置
+# ====================
+.vscode/
+.idea/
+.vs/
+.gradle/
+.consulo/
 *.csproj
 *.unityproj
 *.sln
@@ -47,17 +89,68 @@ ExportedObj
 *.pidb.meta
 *.pdb.meta
 *.mdb.meta
-sysinfo.txt
-crashlytics-build.properties
-*.apk
-*.aab
-*.app
-*.unitypackage
+*.sln.iml
+*.DotSettings.user
+
+# Unity 自动生成
+/[Aa]ssets/[Aa]sset[Ss]tore[Tt]ools*
+/[Aa]ssets/[Pp]lugins/[Ee]ditor/[Jj]et[Bb]rains*
+/[Aa]ssets/[_][Rr]ecovery*
+/[Aa]ssets/[Pp]lugins/[Pp]lastic[Ss][Cc][Mm]*
+*.private
+*.private.meta
 ~UnityDirMonSyncFile~*
-**/Assets/AddressableAssetsData/*/*.bin*
-**/assets/addressableassetsdata/*/*.bin*
-**/Assets/StreamingAssets/aa.meta
-**/assets/streamingassets/*/aa/*
-.DS_Store*
+.utmp/
+/Assets/Resources/PerformanceTestRun*.json
+/Assets/Resources/PerformanceTestRun*.json.meta
+
+# ====================
+# 操作系统文件
+# ====================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 Desktop.ini
+desktop.ini
+
+# ====================
+# 其他
+# ====================
+*.log
+*.bak
+*.backup
+console.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 敏感配置（按需调整）
+/[Aa]ssets/[Ss]treaming[Aa]ssets/*.json
+/[Aa]ssets/[Rr]esources/[Cc]onfig/*.json
+
+# ====================
+# 强制包含重要文件（防止误删）
+# ====================
+!.gitignore
+!/ProjectSettings/
+!/Packages/manifest.json
+!/Assets/Settings/        # 如有此目录
+# !/Assets/Config/*.example.json
+
+# ====================
+# Git LFS 建议（大文件跟踪）
+# ====================
+# 取消下方注释并运行：git lfs track "*.png" ...
+# *.fbx filter=lfs diff=lfs merge=lfs -text
+# *.png filter=lfs diff=lfs merge=lfs -text
+# *.jpg filter=lfs diff=lfs merge=lfs -text
+# *.exr filter=lfs diff=lfs merge=lfs -text
+# *.unity filter=lfs diff=lfs merge=lfs -text
+# *.asset filter=lfs diff=lfs merge=lfs -text
+# *.prefab filter=lfs diff=lfs merge=lfs -text
+# *.anim filter=lfs diff=lfs merge=lfs -text
+# *.mat filter=lfs diff=lfs merge=lfs -text
