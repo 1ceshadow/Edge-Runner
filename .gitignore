@@ -18,6 +18,8 @@ logs
 **/assets/assetstoretools
 /Assets/Plugins/PlasticSCM*
 /assets/plugins/PlasticSCM*
+/Assets/_Recovery*
+/Assets/_Recovery
 *.private
 *.private.meta
 ^*.private.[0-9]+$
