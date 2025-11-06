@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps; // 这行很重要！
 public class PlayerWallCollision : MonoBehaviour
 {
     [Header("碰撞设置")]
-    public string wallTilemapName = "Edge"; // 墙体Tilemap的名称
+    public string wallTilemapName = "Wall"; // 墙体Tilemap的名称
     public float collisionOffset = 0.1f;    // 碰撞偏移量，防止卡墙
     
     private CircleCollider2D playerCollider;

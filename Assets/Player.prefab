@@ -267,7 +267,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c4682a0f2b055048ab38487bdb11d6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  wallTilemapName: Edge
+  wallTilemapName: Wall
   collisionOffset: 0.1
 --- !u!114 &2269286116379146565
 MonoBehaviour:
