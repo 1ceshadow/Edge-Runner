@@ -63,6 +63,8 @@ public class GameStateManager : MonoBehaviour
     private void Awake()
     {
         InitializeSingleton();
+
+        // PreserveGlobalUI();
     }
 
     private void OnEnable()
@@ -84,7 +86,7 @@ public class GameStateManager : MonoBehaviour
     }
 
     // =============================================================
-    //                          单例初始化
+    //                          初始化
     // =============================================================
     private void InitializeSingleton()
     {
@@ -101,6 +103,21 @@ public class GameStateManager : MonoBehaviour
         }
     }
 
+    private void PreserveGlobalUI()
+    {
+        // 关键：将整个 UI 根物体设为永不销毁
+        Transform uiRoot = transform.Find("GameUI");
+        if (uiRoot != null)
+        {
+            DontDestroyOnLoad(uiRoot.gameObject);
+            Debug.Log("全局 UI 已永久保留（跨所有关卡）");
+        }
+        else
+        {
+            Debug.LogWarning("未找到 GameUI！请在 Hierarchy 中创建并拖入 UI");
+        }
+    }
+
     // =============================================================
     //                          输入系统
     // =============================================================
@@ -109,22 +126,22 @@ public class GameStateManager : MonoBehaviour
         inputs ??= new PlayerInputActions();
         inputs.Enable();
 
-        inputs.UI.Pause.performed      += OnPause;
-        inputs.UI.Resume.performed     += OnResume;
-        inputs.UI.Start.performed      += OnRestart;
+        inputs.UI.Pause.performed += OnPause;
+        inputs.UI.Resume.performed += OnResume;
+        inputs.UI.Start.performed += OnRestart;
         inputs.UI.BackToMenu.performed += OnBackToMenu;
-        inputs.UI.NextLevel.performed  += OnNextLevel;
+        inputs.UI.NextLevel.performed += OnNextLevel;
     }
 
     private void CleanupInputSystem()
     {
         if (inputs == null) return;
 
-        inputs.UI.Pause.performed      -= OnPause;
-        inputs.UI.Resume.performed     -= OnResume;
-        inputs.UI.Start.performed      -= OnRestart;
+        inputs.UI.Pause.performed -= OnPause;
+        inputs.UI.Resume.performed -= OnResume;
+        inputs.UI.Start.performed -= OnRestart;
         inputs.UI.BackToMenu.performed -= OnBackToMenu;
-        inputs.UI.NextLevel.performed  -= OnNextLevel;
+        inputs.UI.NextLevel.performed -= OnNextLevel;
 
         inputs.Disable();
     }
@@ -136,8 +153,6 @@ public class GameStateManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"场景加载完成: {scene.name}");
-        // 自动找 UI（每个关卡有自己的 Canvas）
-        AutoFindUI();
 
         // 进入新关卡 → 重置状态
         //ResumeGame();
@@ -146,24 +161,15 @@ public class GameStateManager : MonoBehaviour
 
     }
 
-    // =============================================================
-    //                          UI 自动查找
-    // =============================================================
-    private void AutoFindUI()
-    {
-        pauseMenuUI = GameObject.FindWithTag("PauseMenu");
-        winPanel = GameObject.FindWithTag("WinPanel");
-        deathPanel = GameObject.FindWithTag("DeathPanel");
-
-        if (winPanel) winFadeImage = winPanel.GetComponentInChildren<Image>(true);
-        if (deathPanel) deathFadeImage = deathPanel.GetComponentInChildren<Image>(true);
-
-        Debug.Log($"UI自动查找: Pause={pauseMenuUI != null}, Win={winPanel != null}, Death={deathPanel != null}");
-    }
 
     // =============================================================
     //                          状态管理
     // =============================================================
+    private void InitializeGameState()
+    {
+        ResetGameState();
+        HideAllUI();
+    }
     private void ResetGameState()
     {
         isPaused = false;
@@ -194,29 +200,14 @@ public class GameStateManager : MonoBehaviour
     {
         if (!isDead) return;
 
-        Debug.Log("重新开始游戏");
-
-        // 恢复时间流动
-        Time.timeScale = 1f;
-
-        // 清除死亡状态，避免新场景残留
-        isDead = false;
-
-        // 停止所有协程（防止旧的FadeIn继续运行）
-        StopAllCoroutines();
-
-        // 重新加载当前关卡
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        RestartGame();
     }
 
     private void OnBackToMenu(InputAction.CallbackContext ctx)
     {
         if (!isPaused) { return; }
 
-        Time.timeScale = 1f;
-        isPaused = true;
-        StopAllCoroutines();
-        SceneManager.LoadScene(mainMenuScene);
+        BackToMenu();
     }
 
     private void OnNextLevel(InputAction.CallbackContext ctx)
@@ -267,7 +258,7 @@ public class GameStateManager : MonoBehaviour
         Debug.Log("游戏暂停");
     }
 
-    private void ResumeGame()
+    public void ResumeGame()
     {
         isPaused = false;
         Time.timeScale = 1f;
@@ -275,7 +266,16 @@ public class GameStateManager : MonoBehaviour
         Debug.Log("游戏继续");
     }
 
-    private void GoToNextLevel()
+    public void RestartGame()
+    {
+        Debug.Log("重新开始游戏");
+        Time.timeScale = 1f;
+        isDead = false;
+        StopAllCoroutines();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void GoToNextLevel()
     {
         if (!isWin) return;
 
@@ -286,9 +286,17 @@ public class GameStateManager : MonoBehaviour
         Debug.Log($"加载下一关: {target}");
     }
 
+    public void BackToMenu()
+    {
+        Time.timeScale = 1f;
+        isPaused = true;
+        StopAllCoroutines();
+        SceneManager.LoadScene(mainMenuScene);
+    }
+
 
     // =============================================================
-    //                          协程动画（使用 unscaledTime 防卡死）
+    //                          协程动画
     // =============================================================
     private IEnumerator FadeInWin()
     {
@@ -305,6 +313,8 @@ public class GameStateManager : MonoBehaviour
 
     private IEnumerator FadeInDeathWithDelay(float delay)
     {
+        deathFadeImage.color = new Color(1, 1, 1, 0);
+        
         // 死亡停留阶段
         float timer = 0f;
         while (timer < delay)
@@ -316,7 +326,7 @@ public class GameStateManager : MonoBehaviour
         // 淡入黑屏
         if (deathFadeImage == null) yield break;
 
-        deathFadeImage.color = new Color(1, 1, 1, 0);
+        
         float t = 0f;
 
         while (t < fadeDuration)
@@ -361,13 +371,10 @@ public class GameStateManager : MonoBehaviour
     // }
     private bool IsInGameScene()
         => System.Array.IndexOf(levelScenes, SceneManager.GetActiveScene().name) >= 0;
-        
-    // =============================================================
-    //                          初始化状态（供外部重置）
-    // =============================================================
-    private void InitializeGameState()
+
+    public void switchLevelN(int num)
     {
-        ResetGameState();
-        HideAllUI();
+        SceneManager.LoadScene(levelScenes[num]);
     }
+
 }
