@@ -344,7 +344,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Next",
+                    "name": "NextLevel",
                     "type": "Button",
                     "id": "0a144f6a-0f64-4452-86b8-bc677b84c73d",
                     "expectedControlType": "",
@@ -365,6 +365,24 @@
                     "name": "Continue",
                     "type": "Button",
                     "id": "bd3af489-984b-44ad-91fe-23309e25c0d3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Resume",
+                    "type": "Button",
+                    "id": "a6da8b35-4a2c-48d0-9576-fdd77b43b1f5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "BackToMenu",
+                    "type": "Button",
+                    "id": "5e1c3292-b509-4ce5-90b5-241a1d6cfe74",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -429,17 +447,6 @@
                 },
                 {
                     "name": "",
-                    "id": "28094301-cbb7-4f9a-9f59-5597592b51f0",
-                    "path": "<XInputController>/start",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Menu",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "b0340984-a455-4eaa-a744-6642cdf6a8d8",
                     "path": "<Keyboard>/m",
                     "interactions": "",
@@ -456,7 +463,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Next",
+                    "action": "NextLevel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -467,7 +474,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Next",
+                    "action": "NextLevel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -478,7 +485,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Next",
+                    "action": "NextLevel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -489,7 +496,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Next",
+                    "action": "NextLevel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -500,7 +507,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Next",
+                    "action": "NextLevel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -511,7 +518,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Next",
+                    "action": "NextLevel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -528,12 +535,45 @@
                 },
                 {
                     "name": "",
+                    "id": "4021d9d9-f8f8-43a6-8d4a-55d78d202d67",
+                    "path": "<XInputController>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "4c8114f0-662f-4779-859b-47c15ad29b15",
                     "path": "<Keyboard>/c",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Continue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3b8c9797-e7e0-4d38-9fdd-de43f47d6a77",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Resume",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c0eeb286-4811-4190-a271-70efc57648d4",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BackToMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

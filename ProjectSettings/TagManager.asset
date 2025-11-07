@@ -7,6 +7,9 @@ TagManager:
   - Bullet
   - Enemy
   - Cover
+  - PauseMenu
+  - WinPanel
+  - DeathPanel
   layers:
   - Default
   - TransparentFX
