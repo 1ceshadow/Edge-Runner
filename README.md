@@ -27,6 +27,42 @@ Gamejam中的产物，在不断更新中……
 - Unity 版本：`6000.2.9f1`
 - 目标平台：Windows
 
+### 项目目录(示例)
+Assets/
+├── Scenes/
+│   └── Demo.unity          
+├── Scripts/
+│   ├── Combat/
+│   │   ├── PlayerCombat.cs       
+│   │   ├── AttackData.cs
+│   │   ├── IDamageable.cs
+│   │   └── CombatUtils.cs
+│   ├── Enemy/
+│   │   └── EnemyController.cs    // 带血条 + 击退 + 死亡动画
+│   ├── Effects/
+│   │   ├── HitStop.cs            // 击中停顿
+│   │   ├── CameraShake.cs        // 相机抖动
+│   │   └── ComboSystem.cs        // 连招计数 + UI
+│   └── UI/
+│       └── CombatUI.cs           // 连招数 + 伤害数字
+├── Prefabs/
+│   ├── Player.prefab
+│   ├── Enemy.prefab
+│   ├── AttackArc_Trail.prefab
+│   └── DamagePopup.prefab
+├── ScriptableObjects/
+│   └── Attack/
+│       ├── LightAttack.asset
+│       ├── HeavyAttack.asset
+│       └── UltimateAttack.asset
+├── Animations/
+│   └── Player_Attack.anim
+├── Sprites/                      // 免费像素素材
+├── Audio/                        // 挥刀 + 击中音效
+└── Input/
+    └── PlayerInput.actions
+
+
 ## 🎯 核心功能
 
 - [x] 角色能力（支持冲刺、爬墙、时缓技能）

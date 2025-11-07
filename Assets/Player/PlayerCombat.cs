@@ -8,11 +8,12 @@ public class PlayerCombat : MonoBehaviour
     private Animator animator;
     //
     PlayerMovement playerMovement;
+    
     [Header("攻击设置")]
-    public float attackRange = 2.8f;
-    public float attackAngle = 150f;
-    public float attackCooldown = 0.3f;
-    public int attackDamage = 1;
+    private float attackRange = 2.8f;
+    private float attackAngle = 150f;
+    private float attackCooldown = 0.3f;
+    private int attackDamage = 1;
     // public LayerMask enemyLayer;
 
     [Header("攻击音效")]
@@ -21,7 +22,7 @@ public class PlayerCombat : MonoBehaviour
 
     [Header("视觉反馈")]
     public Color attackEffectColor = new Color(1f, 0.5f, 0f, 0.3f);
-    public float effectDuration = 0.2f;
+    private float effectDuration = 0.2f;
 
     private PlayerInputActions inputActions;
     private bool canAttack = true;
