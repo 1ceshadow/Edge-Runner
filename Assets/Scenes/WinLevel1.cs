@@ -13,7 +13,7 @@ public class WinLevel1 : MonoBehaviour
     [SerializeField] private float fadeDuration = 1.5f;  // 淡入时间
 
     public GameObject pauseMenuUI;
-    private string NextScene = "Level3";
+    private string NextScene = "Level2";
 
     private bool isWin = false;
     private bool isPaused = false;
