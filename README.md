@@ -1,7 +1,7 @@
 # Edge-Runner
 
-![边缘行者](Assets/Picture/cover_653x367.jpg)
-*类幽灵行者2D跑酷游戏*
+![边缘行者](Assets/Picture/cover_653x367.jpg)  
+*类幽灵行者2D跑酷游戏*  
 
 ---
 
