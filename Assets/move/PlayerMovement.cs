@@ -314,15 +314,20 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator TimeSlowVisualEffect()
     {
-        if (playerSprite == null) yield break;
+        SpriteRenderer playerSR = GetComponentInChildren<SpriteRenderer>();
+        if (playerSR == null || playerSR.sprite == null)
+        {
+            Debug.LogWarning("TimeSlow: 未找到 SpriteRenderer 或 Sprite，特效已跳过");
+            yield break;
+        }
 
         GameObject overlay = new GameObject("TimeSlowOverlay");
         overlay.transform.SetParent(transform, false);
 
         var sr = overlay.AddComponent<SpriteRenderer>();
-        sr.sprite = playerSprite;
-        sr.sortingLayerID = sortingLayerID;
-        sr.sortingOrder = sortingOrder + 1;
+        sr.sprite = playerSR.sprite;
+        sr.sortingLayerID = playerSR.sortingLayerID;
+        sr.sortingOrder = playerSR.sortingOrder + 1;
         sr.color = new Color(0.3f, 0.6f, 1f, 0.25f);
 
         float pulse = 0f;
@@ -331,6 +336,11 @@ public class PlayerMovement : MonoBehaviour
             pulse += Time.unscaledDeltaTime * 3f;
             float alpha = 0.25f + Mathf.Sin(pulse * 6f) * 0.05f;
             sr.color = new Color(0.3f, 0.6f, 1f, alpha);
+
+            // 实时更新 Sprite（支持动画切换）
+            if (playerSR.sprite != sr.sprite)
+                sr.sprite = playerSR.sprite;
+
             yield return null;
         }
 
@@ -437,16 +447,21 @@ public class PlayerMovement : MonoBehaviour
 
     private void CreateGhost(Vector2 pos, float alpha, float lifetime)
     {
-        if (playerSprite == null) return;
+        SpriteRenderer playerSR = GetComponentInChildren<SpriteRenderer>();
+        if (playerSR == null || playerSR.sprite == null)
+        {
+            Debug.LogWarning("CreateGhost: 未找到 SpriteRenderer 或 Sprite，残影已跳过");
+            return;
+        }
 
         GameObject ghost = new GameObject("DashGhost");
         ghost.transform.position = pos;
         ghost.transform.localScale = transform.localScale;
 
         var sr = ghost.AddComponent<SpriteRenderer>();
-        sr.sprite = playerSprite;
-        sr.sortingLayerID = sortingLayerID;
-        sr.sortingOrder = sortingOrder;
+        sr.sprite = playerSR.sprite;
+        sr.sortingLayerID = playerSR.sortingLayerID;
+        sr.sortingOrder = playerSR.sortingOrder + 1;  // 永远在玩家上面
         sr.color = new Color(1f, 1f, 1f, alpha);
 
         Destroy(ghost, lifetime);

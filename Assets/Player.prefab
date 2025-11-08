@@ -282,9 +282,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Death
   deathZoneLayerName: DeathZone
-  deathImage: {fileID: 0}
-  fadeDuration: 1.5
-  DeathStay: 1
+  deathStayBeforeFade: 1
+  deathColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &939577091634522217
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,10 +296,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf9b05caae8347d46b70c2e41330a675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  <attackRange>k__BackingField: 2.8
   attackSound: {fileID: 8300000, guid: 7ba64ea93bcaede4b94415d5a94bdc07, type: 3}
   attackEffectColor: {r: 1, g: 0.5, b: 0, a: 0.3}
-  effectDuration: 0.2
 --- !u!82 &7968112813112175588
 AudioSource:
   m_ObjectHideFlags: 0

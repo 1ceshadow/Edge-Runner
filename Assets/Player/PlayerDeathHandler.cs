@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(SpriteRenderer))]
+
 public class PlayerDeathHandler : MonoBehaviour
 {
     [Header("死亡检测设置")]
@@ -18,7 +18,7 @@ public class PlayerDeathHandler : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
+        sr = GetComponentInChildren<SpriteRenderer>();
         playerMovement = GetComponent<PlayerMovement>();
         deathZoneLayer = LayerMask.NameToLayer(deathZoneLayerName);
     }
