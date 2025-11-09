@@ -248,9 +248,13 @@ MonoBehaviour:
   dashAudioClip: {fileID: 8300000, guid: 6e237870b57aa934895ec4478190cd88, type: 3}
   timeSlowScale: 0.3
   timeSlowPlayerSpeed: 20
-  timeSlowDuration: 5
-  timeSlowCooldown: 3
-  timeSlowStartClip: {fileID: 8300000, guid: e1c9e8ba93903414b915e5ff2de973c8, type: 3}
+  timeSlowStartClip: {fileID: 8300000, guid: 9ec14b970df747d46b6d89c839329cf4, type: 3}
+  timeSlowEndClip: {fileID: 8300000, guid: 84d1b1b92bede1a4393d49ee44edae44, type: 3}
+  maxEnergy: 80
+  rechargeRate: 5
+  energyDrainRate: 10
+  minEnergyThreshold: 10
+  currentEnergy: 80
   wallCheckExtra: 0.8
   wallLayerMask:
     serializedVersion: 2

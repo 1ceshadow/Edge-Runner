@@ -20,9 +20,25 @@ public class PlayerMovement : MonoBehaviour
     [Header("时缓设置")]
     [SerializeField] private float timeSlowScale = 0.3f;
     [SerializeField] private float timeSlowPlayerSpeed = 20f;
-    [SerializeField] private float timeSlowDuration = 5f;
-    [SerializeField] private float timeSlowCooldown = 3f;
+    // [SerializeField] private float timeSlowDuration = 5f;
+    // [SerializeField] private float timeSlowCooldown = 3f;
     [SerializeField] private AudioClip timeSlowStartClip;
+    [SerializeField] private AudioClip timeSlowEndClip;
+
+    [Header("时缓慢充能设置")]
+
+    [SerializeField] private float maxEnergy = 80f;
+
+    [SerializeField] private float rechargeRate = 5f;
+
+    [SerializeField] private float energyDrainRate = 10f;
+
+    [SerializeField] private float minEnergyThreshold = 10f;
+
+    [Header("时缓状态显示")]
+
+    [SerializeField] private float currentEnergy = 80f;
+
 
     [Header("角色朝向设置")]
     private float rotationSmoothness = 8f;
@@ -35,7 +51,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("爬墙检测")]
     [SerializeField] private float wallCheckExtra = 0.8f;  // 超出边缘的缓冲
     [SerializeField] private LayerMask wallLayerMask = -1;    // 墙体层（Inspector设置）
-    
+
     //private string BillboardLayerName = "Billboard";
 
     //===================================================================
@@ -54,7 +70,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isDashing = false;
     private bool canDash = true; // 两个有同时存在的必要，以便后续开发
     private bool isTimeSlowed = false;
-    private bool canTimeSlow = true;
+    //private bool canTimeSlow = true;
 
     private float defaultMoveSpeed;
     private Vector2? pendingDashPosition = null;
@@ -95,6 +111,8 @@ public class PlayerMovement : MonoBehaviour
         defaultMoveSpeed = moveSpeed;
         wallCheckDistance = circleCollider.radius + wallCheckExtra; // 适配广告牌探测距离；
 
+        currentEnergy = maxEnergy;  // 时缓能量
+
         // 缓存 SpriteRenderer
         CacheVisuals();
     }
@@ -130,6 +148,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        UpdateTimeSlowEnergy();
+
         // 1. 处理瞬移
         if (pendingDashPosition.HasValue)
         {
@@ -150,7 +170,7 @@ public class PlayerMovement : MonoBehaviour
         // 4. 正常移动
         //Vector2 filteredInput = GetFilteredMoveInput();
         Vector2 movement = filteredInput * moveSpeed * Time.fixedDeltaTime;
-       
+
 
         if (wallCollision == null || !wallCollision.WillCollide(filteredInput, moveSpeed * Time.fixedDeltaTime))
         {
@@ -217,7 +237,7 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(dashCooldown);
 
         canDash = true;
-        
+
     }
     //计算安全瞬移位置（混合射线+圆形检测）
     private Vector2 GetSafeDashPositionHybrid(Vector2 start, Vector2 target)
@@ -225,25 +245,25 @@ public class PlayerMovement : MonoBehaviour
         Vector2 dir = (target - start).normalized;
         float totalDist = Vector2.Distance(start, target);
         float playerRadius = GetPlayerRadius();
-        
+
         // 第一步：快速射线检测
         RaycastHit2D hit = Physics2D.Raycast(start, dir, totalDist, LayerMask.GetMask("Wall"));
         if (hit.collider == null)
             return target; // 没有碰撞，直接到达目标
-        
+
         // 第二步：精确圆形检测找到碰撞点
         float collisionDist = hit.distance;
         RaycastHit2D preciseHit = Physics2D.CircleCast(start, playerRadius, dir, collisionDist + 0.5f, LayerMask.GetMask("Wall"));
-        
+
         if (preciseHit.collider != null)
         {
             collisionDist = preciseHit.distance;
         }
-        
+
         // 第三步：计算安全距离（考虑玩家朝向和墙面法线）
         float safeDistance = CalculateSafeDistance(dir, preciseHit.normal, playerRadius);
         float finalDist = Mathf.Max(0, collisionDist - safeDistance);
-        
+
         return start + dir * finalDist;
     }
     // 计算安全距离（考虑玩家朝向和墙面法线）
@@ -255,7 +275,7 @@ public class PlayerMovement : MonoBehaviour
 
         return playerRadius * 1.2f * angleFactor;
     }
-    
+
     private float GetPlayerRadius()
     {
         // 获取玩家碰撞体半径
@@ -283,17 +303,67 @@ public class PlayerMovement : MonoBehaviour
     //============================ 时缓技能 =============================
     //===================================================================
 
-    private void TryTimeSlow()
+    private void UpdateTimeSlowEnergy()
     {
-        if (!canTimeSlow || isTimeSlowed) return;
-        StartCoroutine(TimeSlowRoutine());
+        if (isTimeSlowed)
+        {
+            currentEnergy -= energyDrainRate * Time.unscaledDeltaTime;
+            if (currentEnergy < minEnergyThreshold)
+            {
+                currentEnergy = Mathf.Max(0f, currentEnergy);
+                StopTimeSlow();
+            }
+        }
+        else
+        {
+            currentEnergy += rechargeRate * Time.unscaledDeltaTime;
+            if (currentEnergy >= maxEnergy)
+            {
+                currentEnergy = maxEnergy;
+            }
+        }
+        currentEnergy = Mathf.Clamp(currentEnergy, 0f, maxEnergy);
     }
 
-    private IEnumerator TimeSlowRoutine()
+    private bool CanUseTimeSlow()
     {
-        isTimeSlowed = true;
-        canTimeSlow = false;
+        return currentEnergy >= minEnergyThreshold;
+    }
 
+    // private void TryTimeSlow()
+    // {
+    //     if (!canTimeSlow || isTimeSlowed) return;
+    //     StartCoroutine(TimeSlowRoutine());
+    // }
+
+    private void TryTimeSlow()
+    {
+
+        if (!CanUseTimeSlow())
+        {
+            Debug.Log($"能量不足！需要至少{minEnergyThreshold}点，当前:{currentEnergy:F1}");
+
+            return;
+        }
+        if (isTimeSlowed)
+        {
+            StopTimeSlow();
+        }
+        else
+        {
+            StartTimeSlow();
+        }
+    }
+
+    private void StartTimeSlow()
+    {
+        if (isTimeSlowed || !CanUseTimeSlow()) return;
+
+        // // 防止上一次恢复协程没结束
+        // if (restoreCoroutine != null)
+        //     StopCoroutine(restoreCoroutine);
+        
+        isTimeSlowed = true;
         PlayOneShot(timeSlowStartClip);
         StartCoroutine(TimeSlowVisualEffect());
 
@@ -301,15 +371,20 @@ public class PlayerMovement : MonoBehaviour
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
         moveSpeed = timeSlowPlayerSpeed;
 
-        yield return new WaitForSecondsRealtime(timeSlowDuration);
+        Debug.Log($"时缓慢开启！当前能量: {currentEnergy:F1}/{maxEnergy}");
+    }
+
+    private void StopTimeSlow()
+    {
+        if (!isTimeSlowed) return;
+        isTimeSlowed = false;
+        PlayOneShot(timeSlowEndClip);
 
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
-        moveSpeed = defaultMoveSpeed;
-        isTimeSlowed = false;
+        moveSpeed = 6.2f;
 
-        yield return new WaitForSecondsRealtime(timeSlowCooldown);
-        canTimeSlow = true;
+        Debug.Log($"时缓慢关闭！剩余能量: {currentEnergy:F1}/{maxEnergy}");
     }
 
     private IEnumerator TimeSlowVisualEffect()
@@ -406,14 +481,14 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 GetFilteredMoveInput()
     {
         // 统计碰到的墙的数量 >= 2
-        bool MultipleWalls = 
-        (isTouchingTopWall    ? 1 : 0) +
+        bool MultipleWalls =
+        (isTouchingTopWall ? 1 : 0) +
         (isTouchingBottomWall ? 1 : 0) +
-        (isTouchingLeftWall   ? 1 : 0) +
-        (isTouchingRightWall  ? 1 : 0) >= 2;
+        (isTouchingLeftWall ? 1 : 0) +
+        (isTouchingRightWall ? 1 : 0) >= 2;
         // 同时碰到多个墙，不限制玩家移动
         if (MultipleWalls) return moveInput;
-    
+
         Vector2 filtered = moveInput;
 
         // 只限制"向墙方向"的移动
@@ -482,5 +557,28 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.DrawRay(pos, Vector2.down * dist);
         Gizmos.DrawRay(pos, Vector2.left * dist);
         Gizmos.DrawRay(pos, Vector2.right * dist);
+    }
+
+    private void OnGUI()
+    {
+        GUIStyle style = new GUIStyle(GUI.skin.label);
+
+        style.fontSize = 16;
+        style.normal.textColor = Color.white;
+        string energyText = $"时缓慢能量: {currentEnergy:F1}/{maxEnergy}";
+        string stateText = isTimeSlowed ? "状态: 开启" : "状态: 关闭";
+        string rateText = isTimeSlowed ? $"消耗: {energyDrainRate}/秒" : $"充能: {rechargeRate}/秒";
+        string thresholdText = $"使用门槛: ≥{minEnergyThreshold}点";
+
+        if (!CanUseTimeSlow())
+        {
+            style.normal.textColor = Color.red;
+            thresholdText = $"能量不足！需要≥{minEnergyThreshold}点";
+        }
+
+        GUI.Label(new Rect(10, 10, 300, 25), energyText, style);
+        GUI.Label(new Rect(10, 35, 300, 25), stateText, style);
+        GUI.Label(new Rect(10, 60, 300, 25), rateText, style);
+        GUI.Label(new Rect(10, 85, 300, 25), thresholdText, style);
     }
 }
