@@ -333,7 +333,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 573617332}
+      - m_Target: {fileID: 573617334}
         m_TargetAssemblyTypeName: GameStateManager, Assembly-CSharp
         m_MethodName: switchLevelN
         m_Mode: 3
@@ -433,7 +433,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.69803923}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.8}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -604,7 +604,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 573617333}
-  - component: {fileID: 573617332}
+  - component: {fileID: 573617334}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -612,30 +612,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &573617332
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 573617331}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f7fac331cac9624aa4fd85fc0f47f97, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameStateManager
-  pauseMenuUI: {fileID: 3325124154490324458}
-  winPanel: {fileID: 7521182459052755636}
-  winFadeImage: {fileID: 4971560185344990926}
-  deathPanel: {fileID: 11600125681754963}
-  deathFadeImage: {fileID: 7327651899536704533}
-  fadeDuration: 1.5
-  mainMenuScene: 0MainMenu
-  levelScenes:
-  - Level0
-  - Level1
-  - Level2
-  - Level3
 --- !u!4 &573617333
 Transform:
   m_ObjectHideFlags: 0
@@ -652,6 +628,30 @@ Transform:
   - {fileID: 1256775051918050628}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &573617334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 573617331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62a088dd60d698244a56a866f31b42aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameStateManager
+  pauseMenuUI: {fileID: 3325124154490324458}
+  winPanel: {fileID: 7521182459052755636}
+  winFadeImage: {fileID: 4971560185344990926}
+  deathPanel: {fileID: 11600125681754963}
+  deathFadeImage: {fileID: 7327651899536704533}
+  fadeDuration: 1.5
+  mainMenuScene: 0MainMenu
+  levelScenes:
+  - Level0
+  - Level1
+  - Level2
+  - Level3
 --- !u!1 &624474554
 GameObject:
   m_ObjectHideFlags: 0
@@ -766,7 +766,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 624474554}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de699984c6f54d64eb5d16140501b616, type: 3}
+  m_Script: {fileID: 11500000, guid: 025fda32f8740a74eaa55e10c6c00357, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
 --- !u!1 &729710746
@@ -779,7 +779,7 @@ GameObject:
   m_Component:
   - component: {fileID: 729710749}
   - component: {fileID: 729710748}
-  - component: {fileID: 729710747}
+  - component: {fileID: 729710750}
   m_Layer: 0
   m_Name: MusicManager
   m_TagString: Untagged
@@ -787,20 +787,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &729710747
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 729710746}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 720ac61bcdb8e5743b083f71889391b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
-  mainMenuSceneName: 0Mainmenu
-  fadeTime: 1
 --- !u!82 &729710748
 AudioSource:
   m_ObjectHideFlags: 0
@@ -913,6 +899,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &729710750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 729710746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d16c4429ba867ba4184d4a0a474ce606, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  mainMenuSceneName: 0Mainmenu
+  fadeTime: 1
 --- !u!1 &1031547989
 GameObject:
   m_ObjectHideFlags: 0
@@ -995,7 +995,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 573617332}
+      - m_Target: {fileID: 573617334}
         m_TargetAssemblyTypeName: GameStateManager, Assembly-CSharp
         m_MethodName: switchLevelN
         m_Mode: 3
@@ -1202,7 +1202,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 573617332}
+      - m_Target: {fileID: 573617334}
         m_TargetAssemblyTypeName: GameStateManager, Assembly-CSharp
         m_MethodName: switchLevelN
         m_Mode: 3
@@ -1466,7 +1466,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 573617332}
+      - m_Target: {fileID: 573617334}
         m_TargetAssemblyTypeName: GameStateManager, Assembly-CSharp
         m_MethodName: switchLevelN
         m_Mode: 3
@@ -1976,7 +1976,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 573617332}
+      - m_Target: {fileID: 573617334}
         m_TargetAssemblyTypeName: GameStateManager, Assembly-CSharp
         m_MethodName: BackToMenu
         m_Mode: 1
@@ -2032,7 +2032,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 573617332}
+      - m_Target: {fileID: 573617334}
         m_TargetAssemblyTypeName: GameStateManager, Assembly-CSharp
         m_MethodName: RestartGame
         m_Mode: 1
@@ -2192,7 +2192,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 573617332}
+      - m_Target: {fileID: 573617334}
         m_TargetAssemblyTypeName: GameStateManager, Assembly-CSharp
         m_MethodName: ResumeGame
         m_Mode: 1

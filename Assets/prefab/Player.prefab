@@ -125,7 +125,7 @@ GameObject:
   - component: {fileID: 6335963616773616376}
   - component: {fileID: 1236161396304436030}
   - component: {fileID: 3925072843339881521}
-  - component: {fileID: 3212447828365466048}
+  - component: {fileID: 5191919938526807265}
   - component: {fileID: 7421646976793643936}
   - component: {fileID: 2269286116379146565}
   - component: {fileID: 939577091634522217}
@@ -230,7 +230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   rb: {fileID: 0}
   animator: {fileID: 0}
---- !u!114 &3212447828365466048
+--- !u!114 &5191919938526807265
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -239,7 +239,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5308266556534980357}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3726f28942ae7045ba4eea690b772f1, type: 3}
+  m_Script: {fileID: 11500000, guid: 1b663fda77211974bb3f66fd8a7947e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 6.2
@@ -300,7 +300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf9b05caae8347d46b70c2e41330a675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  attackSound: {fileID: 8300000, guid: 7ba64ea93bcaede4b94415d5a94bdc07, type: 3}
+  attackSound: {fileID: 8300000, guid: a544f4513b377d34ba199e6c87dc96c4, type: 3}
   attackEffectColor: {r: 1, g: 0.5, b: 0, a: 0.3}
 --- !u!82 &7968112813112175588
 AudioSource:

@@ -949,10 +949,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28cca71e79ca11a45a0616f2b4e9ffd5, type: 3}
+  m_Script: {fileID: 11500000, guid: c851231642ef9524580410cb48f18428, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
-  target: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  target: {fileID: 1352811653}
   horizontalPosition: 0.5
   verticalPosition: 0.35
   smoothTime: 0.13
@@ -44945,6 +44945,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+--- !u!4 &1352811653 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1085973962939880619, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+  m_PrefabInstance: {fileID: 1352811652}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1501970139
 PrefabInstance:
   m_ObjectHideFlags: 0
