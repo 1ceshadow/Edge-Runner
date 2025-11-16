@@ -10,7 +10,7 @@ public class PlayerCombat : MonoBehaviour
     PlayerMovement playerMovement;
     
     [Header("攻击设置")]
-    private float attackRange = 2.8f;
+    private float attackRange = 2.9f;
     private float attackAngle = 150f;
     private float attackCooldown = 0.3f;
     private int attackDamage = 1;
