@@ -1,6 +1,6 @@
 # Edge-Runner
 
-![边缘行者](Assets/Picture/cover_653x367.jpg)  
+![边缘行者](Assets/Materials/Picture/cover_653x367.jpg)  
 *类幽灵行者2D跑酷游戏*  
 
 ---
@@ -29,43 +29,32 @@ Gamejam中的产物，在不断更新中……
 
 ### 项目目录(示例)
 Assets/  
-├── Scenes/  
-│   └── Demo.unity            
-├── Scripts/  
-│   ├── Combat/  
-│   │   ├── PlayerCombat.cs         
-│   │   ├── AttackData.cs  
-│   │   ├── IDamageable.cs  
-│   │   └── CombatUtils.cs  
-│   ├── Enemy/  
-│   │   └── EnemyController.cs  
-│   ├── Effects/  
-│   │   ├── HitStop.cs            // 击中停顿  
-│   │   ├── CameraShake.cs        // 相机抖动  
-│   │   └── ComboSystem.cs        // 连招计数 + UI  
-│   └── UI/  
-│       └── CombatUI.cs           // 连招数 + 伤害数字  
-├── Prefabs/  
-│   ├── Player.prefab  
-│   ├── Enemy.prefab  
-│   ├── AttackArc_Trail.prefab  
-│   └── DamagePopup.prefab  
-├── ScriptableObjects/  
-│   └── Attack/  
-│       ├── LightAttack.asset  
-│       ├── HeavyAttack.asset  
-│       └── UltimateAttack.asset  
-├── Animations/  
-│   └── Player_Attack.anim  
-├── Sprites/                      // 免费像素素材  
-├── Audio/                        // 挥刀 + 击中音效  
-└── Input/  
-    └── PlayerInput.actions  
+├── Animations/                 &emsp;# 动画和控制器  
+├── Audio/                      &emsp;# 所有音效和音乐  
+├── Materials/                  &emsp;# 材质  
+├── Prefabs/                    &emsp;# 预制体  
+├── Scenes/                     &emsp;# 所有场景  
+├── Scripts/                    &emsp;# 所有C#脚本，按类别分组  
+│&emsp;&ensp;├── Core/          &emsp;# 核心游戏系统  
+│&emsp;&ensp;├── Player/        &emsp;# 玩家相关  
+│&emsp;&ensp;├── Enemies/       &emsp;# 敌人相关  
+│&emsp;&ensp;├── Triggers/      &emsp;# 触发器和事件（例如：WinTrigger.cs）  
+│&emsp;&ensp;└── Input/         &emsp;# 输入系统  
+├── Settings/                   &emsp;# Unity设置和渲染管线  
+├── Sprites/                    &emsp;# 所有图像、精灵和UI元素  
+│&emsp;&ensp;├── Tiles/         &emsp;# Tilemap精灵和切片  
+│&emsp;&ensp;├── UI/            &emsp;# UI图像  
+│&emsp;&ensp;└── Characters/    &emsp;# 角色/敌人精灵（例如：来自Picture的玩家精灵，敌人图像）  
+└── TextMeshPro/                &emsp;# Unity包文件夹（自动生成）；  
 
 
-## 🎯 核心功能
+## 🥳 核心功能
 
 - [x] 角色能力（支持冲刺、爬墙、时缓技能）
-- [ ] 关卡加载系统
-- [ ] 存档（PlayerPrefs / JSON）
-- [ ] 排行榜
+
+## 🎯 待处理/实现的功能
+
+- [ ] 镜头的移动处理
+- [ ] 手柄无障碍全操作
+- [ ] 伪3D
+- [ ] 攻击碰撞体处理 -- 更精确的攻击

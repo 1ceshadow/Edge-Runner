@@ -67744,6 +67744,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+--- !u!4 &1832931438 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1085973962939880619, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+  m_PrefabInstance: {fileID: 1832931437}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1851368578
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -67875,7 +67880,7 @@ GameObject:
   - component: {fileID: 1906717153}
   - component: {fileID: 1906717152}
   - component: {fileID: 1906717151}
-  - component: {fileID: 1906717150}
+  - component: {fileID: 1906717155}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -67883,26 +67888,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1906717150
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1906717149}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28cca71e79ca11a45a0616f2b4e9ffd5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  target: {fileID: 0}
-  horizontalPosition: 0.5
-  verticalPosition: 0.405
-  smoothTime: 0.13
-  maxSpeed: Infinity
-  enableBounds: 0
-  minBounds: {x: -10, y: -10}
-  maxBounds: {x: 10, y: 10}
 --- !u!114 &1906717151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68021,6 +68006,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1906717155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1906717149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c851231642ef9524580410cb48f18428, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  target: {fileID: 1832931438}
+  horizontalPosition: 0.5
+  verticalPosition: 0.35
+  smoothTime: 0.13
+  maxSpeed: Infinity
+  enableBounds: 0
+  minBounds: {x: -10, y: -10}
+  maxBounds: {x: 10, y: 10}
 --- !u!1001 &1925396767
 PrefabInstance:
   m_ObjectHideFlags: 0

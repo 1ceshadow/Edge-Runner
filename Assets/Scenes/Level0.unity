@@ -481,6 +481,10 @@ PrefabInstance:
       propertyPath: attackRange
       value: 2.8
       objectReference: {fileID: 0}
+    - target: {fileID: 939577091634522217, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: attackSound
+      value: 
+      objectReference: {fileID: 8300000, guid: a544f4513b377d34ba199e6c87dc96c4, type: 3}
     - target: {fileID: 1085973962939880619, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
       propertyPath: m_LocalPosition.x
       value: 17.99
@@ -533,6 +537,22 @@ PrefabInstance:
       propertyPath: wallLayerMask.m_Bits
       value: 256
       objectReference: {fileID: 0}
+    - target: {fileID: 5191919938526807265, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: dashAudioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 6e237870b57aa934895ec4478190cd88, type: 3}
+    - target: {fileID: 5191919938526807265, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: timeSlowEndClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 84d1b1b92bede1a4393d49ee44edae44, type: 3}
+    - target: {fileID: 5191919938526807265, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: timeSlowStartClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 9ec14b970df747d46b6d89c839329cf4, type: 3}
+    - target: {fileID: 5191919938526807265, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: wallLayerMask.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
     - target: {fileID: 5308266556534980357, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
       propertyPath: m_Name
       value: Player
@@ -542,6 +562,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+--- !u!4 &361800933 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1085973962939880619, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+  m_PrefabInstance: {fileID: 361800932}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -674,7 +699,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15.34, y: 2.26, z: -10}
+  m_LocalPosition: {x: 17.34, y: -34.74, z: -10}
   m_LocalScale: {x: 1.2167, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -689,10 +714,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28cca71e79ca11a45a0616f2b4e9ffd5, type: 3}
+  m_Script: {fileID: 11500000, guid: c851231642ef9524580410cb48f18428, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
-  target: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  target: {fileID: 361800933}
   horizontalPosition: 0.5
   verticalPosition: 0.35
   smoothTime: 0.13
