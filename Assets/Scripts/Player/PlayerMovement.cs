@@ -27,7 +27,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("时缓慢充能设置")]
 
-    [SerializeField] private float maxEnergy = 80f;
+    public float maxEnergy = 80f;
 
     [SerializeField] private float rechargeRate = 5f;
 
@@ -37,7 +37,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("时缓状态显示")]
 
-    [SerializeField] private float currentEnergy = 80f;
+    public float currentEnergy = 80f;
 
 
     [Header("角色朝向设置")]
@@ -576,9 +576,9 @@ public class PlayerMovement : MonoBehaviour
             thresholdText = $"能量不足！需要≥{minEnergyThreshold}点";
         }
 
-        GUI.Label(new Rect(10, 10, 300, 25), energyText, style);
-        GUI.Label(new Rect(10, 35, 300, 25), stateText, style);
-        GUI.Label(new Rect(10, 60, 300, 25), rateText, style);
-        GUI.Label(new Rect(10, 85, 300, 25), thresholdText, style);
+        // GUI.Label(new Rect(10, 10, 300, 25), energyText, style);
+        // GUI.Label(new Rect(10, 35, 300, 25), stateText, style);
+        // GUI.Label(new Rect(10, 60, 300, 25), rateText, style);
+        // GUI.Label(new Rect(10, 85, 300, 25), thresholdText, style);
     }
 }

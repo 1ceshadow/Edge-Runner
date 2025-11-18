@@ -9,7 +9,7 @@ public class CameraController : MonoBehaviour
     [Range(0f, 1f)]
     public float horizontalPosition = 0.5f; // 水平位置（0=左，1=右，0.5=中间）
     [Range(0f, 1f)]
-    public float verticalPosition = 0.35f; // 垂直位置（0=下，1=上，0.333=下三分之一）
+    public float verticalPosition = 0.42f; // 垂直位置（0=下，1=上，0.333=下三分之一）
     
     [Header("跟随平滑度")]
     public float smoothTime = 0.13f; // 平滑跟随时间（秒）

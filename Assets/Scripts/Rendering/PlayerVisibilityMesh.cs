@@ -16,15 +16,15 @@ public class PlayerVisibilityMesh : MonoBehaviour
     [SerializeField] private string wallTilemapName = "Wall";           // 墙体 Tilemap GameObject 名字
     //[SerializeField] private LayerMask wallLayerMask = -1;             // 墙体所处 Layer（备用，当前未使用 Raycast）
     [SerializeField] private float rangeRadius = 8f;                   // 玩家最大可视距离（圆形边界时使用）
-    [SerializeField] private float rayLength = 100f;                   // 射线延伸的最远距离（非圆形边界时使用）
-    [SerializeField] private Color fillColor = Color.white;            // 遮罩填充颜色（会自动同步墙体颜色）
+    [SerializeField] private float rayLength = 8f;                   // 射线延伸的最远距离（非圆形边界时使用）
+    [SerializeField] private Color fillColor;            // 遮罩填充颜色（会自动同步墙体颜色）
     [SerializeField] private int sortingOrder = 10;                    // 遮罩渲染顺序
     [SerializeField] private float arcStepDegrees = 6f;                // 圆形边界时弧线细分角度
-    [SerializeField] private bool useCameraRadius = true;              // 是否使用相机可见范围作为扫描半径
+    [SerializeField] private bool useCameraRadius = false;              // 是否使用相机可见范围作为扫描半径
     [SerializeField] private float scanRadius = 12f;                   // 手动指定的扫描半径（useCameraRadius = false 时生效）
     [SerializeField] private float screenMargin = 1f;                  // 相机边界额外扩展距离，防止边缘闪烁
 
-    [SerializeField] private bool useCircleBoundary = false;           // 是否使用正圆形边界（true＝圆形视野，false＝射线延伸）
+    [SerializeField] private bool useCircleBoundary = true;           // 是否使用正圆形边界（true＝圆形视野，false＝射线延伸）
     [SerializeField] private bool useFacingCull = true;                // 是否只处理面向玩家的墙体边缘（背对玩家的墙不生成遮罩）
     [SerializeField] private string groundTilemapName = "Ground";      // 地面 Tilemap GameObject 名字
     //[SerializeField] private bool groundUseFacingCull = true;          // 地面延伸是否也进行面向剔除
@@ -94,7 +94,7 @@ public class PlayerVisibilityMesh : MonoBehaviour
         //     ? wallTileRenderer.material.color
         //     : (wallTilemap ? wallTilemap.color : Color.gray);
         Color wallCol = wallTilemap ? wallTilemap.color : Color.gray;
-        fillColor = new Color(wallCol.r, wallCol.g, wallCol.b, 1f);
+        // fillColor = new Color(wallCol.r, wallCol.g, wallCol.b, 1f);
         wallMat.color = fillColor;
         meshRenderer.material = wallMat;
 
@@ -203,7 +203,7 @@ public class PlayerVisibilityMesh : MonoBehaviour
         //     wallCol = wallTilemap.color;
         Color wallCol = wallTilemap ? wallTilemap.color : Color.gray;
 
-        fillColor = new Color(wallCol.r, wallCol.g, wallCol.b, 1f);
+        //fillColor = new Color(wallCol.r, wallCol.g, wallCol.b, 1f);
         if (meshRenderer != null && meshRenderer.material != null)
             meshRenderer.material.color = fillColor;
     }
@@ -518,3 +518,4 @@ public class PlayerVisibilityMesh : MonoBehaviour
         return Vector2.Distance(p, closest);
     }
 }
+
