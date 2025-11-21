@@ -17,7 +17,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float dashCooldown = 0.2f;
     [SerializeField] private AudioClip dashAudioClip;
 
-    [Header("时缓设置")]
+    [Header("时缓效果设置")]
     [SerializeField] private float timeSlowScale = 0.3f;
     [SerializeField] private float timeSlowPlayerSpeed = 20f;
     // [SerializeField] private float timeSlowDuration = 5f;
@@ -25,15 +25,21 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private AudioClip timeSlowStartClip;
     [SerializeField] private AudioClip timeSlowEndClip;
 
-    [Header("时缓慢充能设置")]
+    [Header("时缓能量值设置")]
 
     public float maxEnergy = 80f;
 
-    [SerializeField] private float rechargeRate = 5f;
+    [SerializeField] private float rechargeRate = 2f;
 
     [SerializeField] private float energyDrainRate = 10f;
 
     [SerializeField] private float minEnergyThreshold = 10f;
+    [SerializeField] private float perfectDashReward = 8f;//极限闪避奖励值
+    [SerializeField] public float killReward0 = 10f;//击杀敌人奖励值
+    public bool isKillRewarded0 = false;
+    [SerializeField] private float perfectDashDetectRange = 1.4f;
+    public bool isPerfectDashed = false;
+    public bool isRewarded = false;
 
     [Header("时缓状态显示")]
 
@@ -153,6 +159,7 @@ public class PlayerMovement : MonoBehaviour
         // 1. 处理瞬移
         if (pendingDashPosition.HasValue)
         {
+
             rb.MovePosition(pendingDashPosition.Value);
             pendingDashPosition = null;
             // 重置爬墙状态
@@ -185,6 +192,15 @@ public class PlayerMovement : MonoBehaviour
         }
         ApplyRotationSmoothly();
 
+        //击杀音效
+        if (isKillRewarded0)
+        {
+            isKillRewarded0 = false;
+            audioSource.PlayOneShot(timeSlowStartClip);
+        }
+
+
+
     }
 
     //===================================================================
@@ -203,7 +219,20 @@ public class PlayerMovement : MonoBehaviour
     private void TryDash()
     {
         if (!canDash || isDashing) return;
+        HandlePerfectDashed();
         StartCoroutine(InstantDash());
+    }
+    private void HandlePerfectDashed()
+    {
+        // 检查是否有子弹在范围内
+        if (BulletManager.Instance.CheckBulletsInRange(rb.position, perfectDashDetectRange))
+        {
+            // 有子弹，触发极限闪避
+            isPerfectDashed = true;
+            isRewarded = true;
+            Debug.Log("有子弹在范围内，触发极限闪避");
+            currentEnergy += perfectDashReward;
+        }
     }
 
     private IEnumerator InstantDash()
@@ -230,6 +259,13 @@ public class PlayerMovement : MonoBehaviour
         // 音效和特效
         PlayOneShot(dashAudioClip);
         StartCoroutine(DashVisualEffect(start, safeTarget));
+        if (isPerfectDashed)   //待加音效
+        {
+            isPerfectDashed = false;
+            PlayOneShot(timeSlowStartClip);
+        }
+
+
 
         // 5. 启动冷却（独立协程）
         isDashing = false;
@@ -308,7 +344,7 @@ public class PlayerMovement : MonoBehaviour
         if (isTimeSlowed)
         {
             currentEnergy -= energyDrainRate * Time.unscaledDeltaTime;
-            if (currentEnergy < minEnergyThreshold)
+            if (currentEnergy < 1f)
             {
                 currentEnergy = Mathf.Max(0f, currentEnergy);
                 StopTimeSlow();

@@ -21,20 +21,19 @@ public class BulletController : MonoBehaviour
         startPosition = transform.position;
         rb = GetComponent<Rigidbody2D>();
 
-        // 确保有刚体用于Collision检测
-        if (rb == null)
-        {
-            rb = gameObject.AddComponent<Rigidbody2D>();
-            rb.gravityScale = 0f;
-            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // 连续碰撞检测
-        }
-
-        // 确保有碰撞体
-        if (GetComponent<Collider2D>() == null)
-        {
-            var collider = gameObject.AddComponent<CircleCollider2D>();
-            collider.isTrigger = false; // 使用Collision，不是Trigger
-        }
+        // // 确保有刚体用于Collision检测
+        // if (rb == null)
+        // {
+        //     rb = gameObject.AddComponent<Rigidbody2D>();
+        //     rb.gravityScale = 0f;
+        //     rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // 连续碰撞检测
+        // }
+        // // 确保有碰撞体
+        // if (GetComponent<Collider2D>() == null)
+        // {
+        //     var collider = gameObject.AddComponent<CircleCollider2D>();
+        //     collider.isTrigger = false; // 使用Collision，不是Trigger
+        // }
     }
 
     void Update()
@@ -56,6 +55,20 @@ public class BulletController : MonoBehaviour
         {
             DestroyBullet();
         }
+    }
+
+    private void OnEnable() 
+    { 
+        // 注册到管理器（如果管理器存在）
+        if (BulletManager.Instance != null)
+            BulletManager.Instance.RegisterBullet(transform);
+    }
+    
+    private void OnDisable() 
+    { 
+        // 从管理器移除
+        if (BulletManager.Instance != null)
+            BulletManager.Instance.UnregisterBullet(transform);
     }
 
     /// <summary>
@@ -155,59 +168,7 @@ public class BulletController : MonoBehaviour
             return;
         }
     }
-/*
-    private void HandleCollision(GameObject hitObject)
-    {
-        if (!isActive) return;
 
-        Debug.Log($"子弹碰撞: {hitObject.name} (Tag: {hitObject.tag})");
-
-        // 掩体
-        if (hitObject.CompareTag("Cover"))
-        {
-            HitCover();
-            return;
-        }
-
-        // 玩家
-        if (hitObject.CompareTag("Player"))
-        {
-            HitPlayer(hitObject);
-            return;
-        }
-
-        // 其他可破坏物（可选扩展）
-        // if (hitObject.CompareTag("Enemy")) { ... }
-    }
-
-    private void HitCover()
-    {
-        Debug.Log("子弹击中掩体");
-        DestroyBullet();
-    }
-
-    private void HitPlayer(GameObject playerObj)
-    {
-        Debug.Log("子弹击中玩家 → 执行死亡");
-
-        var deathHandler = playerObj.GetComponent<PlayerDeathHandler>();
-        if (deathHandler != null)
-        {
-            deathHandler.DieFromExternal();
-        }
-        else
-        {
-            Debug.LogError("Player 缺少 PlayerDeathHandler 组件！死亡未触发！");
-        }
-
-        DestroyBullet();
-        // 击中特效（可选）
-        if (hitEffectPrefab != null)
-        {
-            Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
-        }
-    }
-*/
     /// <summary>
     /// 安全销毁子弹
     /// </summary>

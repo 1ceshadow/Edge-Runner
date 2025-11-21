@@ -21,6 +21,9 @@ public class EnemyController : MonoBehaviour
     public int maxHealth = 1;
     public int currentHealth;
 
+    [Header("时缓能量奖励")]
+    private PlayerMovement playerMovement;
+
     void Start()
     {
         // 初始化生命值
@@ -30,6 +33,7 @@ public class EnemyController : MonoBehaviour
         if (playerObj != null)
         {
             player = playerObj.transform;
+            playerMovement = playerObj.GetComponent<PlayerMovement>();
         }
         else
         {
@@ -74,11 +78,11 @@ public class EnemyController : MonoBehaviour
     
     void Shoot()
     {
-        if (bulletPrefab == null)
-        {
-            Debug.LogError("EnemyController: bulletPrefab未设置！");
-            return;
-        }
+        // if (bulletPrefab == null)
+        // {
+        //     Debug.LogError("EnemyController: bulletPrefab未设置！");
+        //     return;
+        // }
         
         Vector2 directionToPlayer = (player.position - transform.position).normalized;
         float baseAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
@@ -164,6 +168,14 @@ private void Die()
     
     // 播放死亡效果（可选）
     // PlayDeathEffect();
+
+    // 时缓能量奖励
+    if (playerMovement != null)
+    {
+        playerMovement.currentEnergy += playerMovement.killReward0;
+        playerMovement.isKillRewarded0 = true;
+        playerMovement.isRewarded = true;
+    }
     
     // 销毁敌人
     Destroy(gameObject);
