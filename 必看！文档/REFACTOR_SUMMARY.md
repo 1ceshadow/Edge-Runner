@@ -195,11 +195,25 @@ Assets/Scripts/Bullet/
 4. **PERFORMANCE_GUIDE.md** - 性能优化 (30 分钟)
 
 ### 💻 源代码
-- **Framework**: `Assets/Scripts/Framework/`
-- **Player**: `Assets/Scripts/Player/`
-- **Enemies**: `Assets/Scripts/Enemies/`
-- **Bullet**: `Assets/Scripts/Bullet/`
-- **Interfaces**: `Assets/Scripts/Core/Interfaces.cs`
+
+## 📝 变更记录 (Change Log)
+
+- **2025-11-25**: 修复并记录运行时警告与空引用异常
+  - `PlayerVisibilityMesh.cs`:
+    - 将原本的 `int sortingLayerID` 替换为可在 Inspector 编辑的 `string sortingLayerName`。
+    - Awake 时优先复制场景中现有 `SpriteRenderer` 的 `sortingLayerID`，若不可用则使用 `SortingLayer.NameToID(sortingLayerName)`。
+    - 目的：修复控制台中 `Invalid layer id` 警告，避免使用错误的数值索引。
+  - `EnergyBar.cs`:
+    - 从直接依赖 `PlayerMovement` 的轮询改为订阅 `EventBus` 事件（`PlayerEnergyChangedEvent`、`EnemyDefeatedEvent`、`PlayerDashedEvent`）。
+    - 添加对 UI 元素的空检查，避免在未完成初始化时触发 `NullReferenceException`。
+    - 目的：将 UI 变为事件驱动，降低耦合并减少运行时错误风险。
+  - 文档：在 `README_REFACTORING.md` 中新增渲染层（sorting layer）注意事项，说明应使用 `sortingLayerName` 而非数字索引。
+
+**验证建议（请在 Unity Editor 中执行）**:
+- 打开包含玩家场景并运行，确认控制台中不再出现 `Invalid layer id` 警告。
+- 确认玩家能量变化时 `EnergyBar` 正确响应（显示填充与奖励特效）。
+- 若仍出现渲染异常，请在 `PlayerVisibilityMesh` 的 Inspector 中设置 `sortingLayerName` 为项目中存在的图层名称。
+
 
 ---
 

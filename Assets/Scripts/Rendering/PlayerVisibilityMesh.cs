@@ -17,7 +17,9 @@ public class PlayerVisibilityMesh : MonoBehaviour
     [SerializeField] private float rangeRadius = 8f;                   // 玩家最大可视距离
     [SerializeField] private float rayLength = 8f;                   // 射线延伸的最远距离
     [SerializeField] private bool useWallColor = false;              // 用wall的颜色还是材质
-    [SerializeField] private int sortingLayerID = 5;
+    [Header("Rendering")]
+    [Tooltip("Use the sorting layer name (recommended). If empty, will try to copy from a nearby SpriteRenderer.")]
+    [SerializeField] private string sortingLayerName = "Default";
     [SerializeField] private int sortingOrder = 20;                    // 遮罩渲染顺序
     [SerializeField] private float screenMargin = 5f;                  // 相机边界额外扩展距离，防止边缘闪烁
 
@@ -58,8 +60,19 @@ public class PlayerVisibilityMesh : MonoBehaviour
         meshFilter = wallGo.AddComponent<MeshFilter>();
         meshRenderer = wallGo.AddComponent<MeshRenderer>();
 
-        //if (sr) meshRenderer.sortingLayerID = sr.sortingLayerID;
-        meshRenderer.sortingLayerID = sortingLayerID;
+        // 优先尝试继承场景中同层 SpriteRenderer 的设置
+        if (sr)
+        {
+            meshRenderer.sortingLayerID = sr.sortingLayerID;
+        }
+        else
+        {
+            // 使用层名来获取唯一 id（不要使用索引）
+            if (!string.IsNullOrEmpty(sortingLayerName))
+            {
+                meshRenderer.sortingLayerID = SortingLayer.NameToID(sortingLayerName);
+            }
+        }
         meshRenderer.sortingOrder = sortingOrder;
 
         mesh = new Mesh();
