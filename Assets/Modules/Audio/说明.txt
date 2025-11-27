@@ -1,0 +1,5 @@
+Audio/               ← 全局 Audio 模块
+├── Scripts/         ← AudioManager、MusicPlayer
+├── Music/           ← 所有 BGM
+├── SFX/             ← 共享音效（如按钮点击）
+└── Prefabs/         ← AudioSource 预制体
