@@ -1,30 +1,4 @@
-# 🎮 Edge-Runner 项目重构 - 完整方案汇总
 
-## 📚 文档导览
-
-本项目已提供了完整的重构方案文档，请按以下顺序阅读:
-
-### 1. **REFACTORING_GUIDE.md** ⭐ 必读
-   - 详细的架构分析和设计
-   - 当前问题诊断
-   - 新架构完整说明
-   - 代码示例和最佳实践
-   - **阅读时间**: 30-45 分钟
-
-### 2. **QUICK_START.md** ⭐ 快速开始
-   - 5 分钟快速入门
-   - 迁移检查清单
-   - 常见问题解答
-   - **阅读时间**: 10-15 分钟
-
-### 3. **PERFORMANCE_GUIDE.md** ⭐ 性能优化
-   - 性能对标和指标
-   - 5 大优化策略
-   - 性能测试方法
-   - 优化优先级
-   - **阅读时间**: 20-30 分钟
-
----
 
 ## 🎯 核心改进概览
 
@@ -42,10 +16,10 @@
 
 ---
 
-## 📁 新增文件结构
+## 📁 脚本文件参考结构
 
 ```
-Assets/Scripts/
+Assets/
 ├── Framework/                    ✨ 新增 - 游戏框架层
 │   ├── ServiceLocator.cs        # DI 容器
 │   ├── EventBus.cs              # 事件系统
@@ -88,7 +62,7 @@ Assets/Scripts/
 │   └── GameEvents.cs
 │
 └── UI/
-    ├── EnergyBar.cs             # 待处理 - 文档/实现已回退，待补充
+    ├── EnergyBar.cs             
     ├── HealthBar.cs             # 改进版 - 使用事件
     └── ...
 ```
@@ -172,47 +146,7 @@ Assets/Scripts/
 
 ---
 
-## 🔧 事件拆分与兼容性说明（重要）
 
-为保持事件系统清晰并便于维护，所有事件类型已从 `EventBus.cs` 中拆分到 `Assets/Scripts/Events/` 目录下的单独文件（例如 `PlayerEvents.cs`、`CombatEvents.cs`、`GameStateEvents.cs`、`UIEvents.cs`）。
-
-- 兼容性注意：当前 `EventBus` 的实现要求事件类型为引用类型（`class`），因此请不要在事件系统中使用 `struct`（值类型），否则 `EventBus.Subscribe<T>` / `Publish<T>` 会不匹配或抛出错误。
-- 文档中早期提到的“使用 struct 事件避免堆分配”的建议已保留为性能讨论，但在本项目的 EventBus 实现下优先使用 `class`。如果你需要无分配事件系统，可考虑引入基于对象池或预分配的事件缓冲实现（可在后续迭代中实现）。
-
-已做的改动：
-- 从 `EventBus.cs` 中移除了事件类定义，事件类型现在位于 `Assets/Scripts/Events/` 下。事件已定义为全局可见的 `class`，可直接在代码中使用（无需额外命名空间）。
-- 已将时间慢动作事件（`TimeSlowStartedEvent` / `TimeSlowEndedEvent`）修正为 `class`，并放入 `Assets/Scripts/Events/TimeEvents.cs`。
-
-操作建议：
-- 若要新增事件，请在 `Assets/Scripts/Events/` 下新建文件并使用 `namespace GameEvents`，事件应为 `public class`，避免使用 `struct`。
-- 在订阅/取消订阅事件时，请在 `OnEnable` / `OnDisable` 或 `Awake` / `OnDestroy` 中成对处理，避免内存泄漏或意外调用。
-
-
-## 🧪 测试策略
-
-### 单元测试
-```csharp
-[Test]
-public void EnergySystem_Should_Recharge_Correctly()
-{
-    var energy = new PlayerEnergySystem();
-    energy.Initialize();
-    energy.ConsumeEnergy(10);
-    // Assert
-}
-```
-
-### 集成测试
-- 玩家能正常移动吗?
-- 敌人能正常射击吗?
-- 能量系统工作正常吗?
-
-### 性能测试
-- GC Alloc < 0.5 MB/帧?
-- 帧时间 < 5 ms?
-- 内存峰值 < 300 MB?
-
----
 
 ## 🎓 学习资源
 
@@ -278,88 +212,3 @@ private void OnDisable()
     EventBus.Unsubscribe<DamageEvent>(OnDamage);
 }
 ```
-
----
-
-## 📞 获得帮助
-
-### 文档位置
-1. `REFACTORING_GUIDE.md` - 完整架构文档
-2. `QUICK_START.md` - 快速开始指南
-3. `PERFORMANCE_GUIDE.md` - 性能优化指南
-4. 代码注释 - 每个文件都有详细注释
-
-### 代码示例
-- `Assets/Scripts/Framework/` - 框架实现
-- `Assets/Scripts/Player/` - 玩家系统示例
-- `Assets/Scripts/Enemies/` - 敌人系统示例
-- `Assets/Scripts/Bullet/` - 子弹系统示例
-
----
-
-## ✅ 质量保证
-
-### 代码质量
-- [ ] 所有代码都遵循命名规范
-- [ ] 所有文件都有文件头注释
-- [ ] 所有类都有详细 XML 文档
-- [ ] 所有公共方法都有文档
-
-### 性能指标
-- [ ] GC Alloc < 0.5 MB/帧
-- [ ] 平均帧时间 < 5 ms
-- [ ] 内存峰值 < 300 MB
-- [ ] 满载 FPS 稳定 > 60
-
-### 功能完整性
-- [ ] 玩家系统完全工作
-- [ ] 敌人系统完全工作
-- [ ] UI 完全响应
-- [ ] 所有事件正确发送
-
----
-
-## 🚀 后续改进方向
-
-### 短期 (1-2 周)
-- [ ] 完成基础架构重构
-- [ ] 性能优化和测试
-- [ ] 完整的文档和示例
-
-### 中期 (1 个月)
-- [ ] 实现行为树 AI 系统
-- [ ] 添加更多敌人类型
-- [ ] 创建关卡系统
-
-### 长期 (3 个月+)
-- [ ] 多人网络支持
-- [ ] 高级音频系统
-- [ ] 完整的 UI 框架
-
----
-
-## 📝 版本历史
-
-### v1.0 (2025-11-25)
-- ✅ 完整的架构重构方案
-- ✅ 所有核心系统实现
-- ✅ 详细的文档和示例
-- ✅ 性能优化指南
-
----
-
-## 📞 反馈和支持
-
-如有问题，请:
-1. 查看相关文档
-2. 检查代码注释
-3. 参考示例代码
-4. 查看 Git 历史了解变更
-
----
-
-**祝你重构顺利！🎉**
-
-**文档作者**: GitHub Copilot  
-**最后更新**: 2025-11-25  
-**版本**: 1.0 Final
