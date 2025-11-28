@@ -44,18 +44,7 @@ public class PlayerDeathHandler : MonoBehaviour
         
         deathZoneLayer = LayerMask.NameToLayer(deathZoneLayerName);
     }
-
-    private void OnEnable()
-    {
-        // 可选：如果你想让子弹脚本直接调用
-        // Bullet.OnPlayerHit += DieFromBullet;
-    }
-
-    private void OnDisable()
-    {
-        // Bullet.OnPlayerHit -= DieFromBullet;
-    }
-
+    
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isDead) return;
@@ -80,47 +69,39 @@ public class PlayerDeathHandler : MonoBehaviour
         // 1. 停止运动
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
-        rb.bodyType = RigidbodyType2D.Kinematic; // 防止物理干扰
+        rb.bodyType = RigidbodyType2D.Kinematic;
 
         // 2. 禁用关键控制脚本
         if (playerController != null)
-        {
             playerController.enabled = false;
-        }
         if (inputHandler != null)
-        {
             inputHandler.enabled = false;
-        }
         if (movement != null)
         {
             movement.CancelDash();
             movement.enabled = false;
         }
         if (combatSystem != null)
-        {
             combatSystem.enabled = false;
-        }
 
         // 3. 视觉反馈：变红
         if (sr != null)
             sr.color = deathColor;
 
-        Debug.Log("玩家死亡！准备显示死亡界面...");
+        Debug.Log($"玩家死亡！位置: {transform.position}");
 
-        // 4. 通知 GameStateManager 显示死亡界面（带延迟淡入）
-        // 优先使用 DI 注入的服务
+        // 4. 通知 GameStateManager 显示死亡界面
         if (gameStateManager != null)
         {
             gameStateManager.TriggerDeath();
         }
         else if (GameStateManager.Instance != null)
         {
-            // 向后兼容：回退到静态单例
             GameStateManager.Instance.PlayerDieWithDelay(deathStayBeforeFade);
         }
         else
         {
-            Debug.LogError("GameStateManager 未找到！请确保在 MainMenu 场景中创建！");
+            Debug.LogError("GameStateManager 未找到！");
         }
     }
 

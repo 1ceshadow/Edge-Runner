@@ -22,10 +22,12 @@ namespace EdgeRunner.Player.Systems
         // ═══════════════════════════════════════════════════════════════
         
         [Header("碰撞检测")]
-        [SerializeField] private LayerMask wallLayerMask;       // 墙体层（冲刺碰撞）
-        [SerializeField] private LayerMask billboardLayerMask;  // 广告牌层（吸附功能）
         [SerializeField] private float wallCheckExtra = 0.8f;
-        [SerializeField] private float collisionOffset = 0.05f;
+        [SerializeField] private float collisionOffset = 0.15f; // 安全边距，防止卡墙
+        
+        // 由 PlayerController 设置的层遮罩
+        private LayerMask wallLayerMask;       // 墙体层（冲刺碰撞）
+        private LayerMask billboardLayerMask;  // 广告牌层（吸附功能）
         
         // ═══════════════════════════════════════════════════════════════
         //                          组件缓存
@@ -74,10 +76,8 @@ namespace EdgeRunner.Player.Systems
             circleCollider = GetComponent<CircleCollider2D>();
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             
-            rb.bodyType = RigidbodyType2D.Dynamic;
-            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
-            rb.gravityScale = 0f;
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            // 注意：Rigidbody2D 配置由 PlayerController 负责
+            // 这里只是确保有必要的引用
             
             lastValidPosition = rb.position;
         }
@@ -85,10 +85,16 @@ namespace EdgeRunner.Player.Systems
         private void FixedUpdate()
         {
             // 处理挂起的冲刺（必须在 FixedUpdate 中执行）
-            // 完全复制原始 PlayerMovement 的逻辑
             if (pendingDashPosition.HasValue)
             {
-                rb.MovePosition(pendingDashPosition.Value);
+                Vector2 targetPos = pendingDashPosition.Value;
+                
+                // 闪现是瞬移，需要同时更新物理位置和渲染位置
+                // 否则 Interpolate 模式下 transform.position 会延迟更新
+                // 导致 OnTriggerEnter2D 触发时视觉上还在原位置
+                rb.MovePosition(targetPos);
+                transform.position = targetPos;  // 立即同步渲染位置
+                
                 pendingDashPosition = null;
                 return; // 本帧只做瞬移
             }
@@ -291,7 +297,7 @@ namespace EdgeRunner.Player.Systems
         }
         
         /// <summary>
-        /// 计算安全瞬移位置（纯 CircleCast 检测，最可靠）
+        /// 计算安全瞬移位置（混合射线+圆形检测，更精确）
         /// </summary>
         private Vector2 GetSafeDashPosition(Vector2 start, Vector2 target)
         {
@@ -300,7 +306,8 @@ namespace EdgeRunner.Player.Systems
             float playerRadius = GetScaledRadius();
             LayerMask effectiveMask = GetEffectiveWallMask();
 
-            // CircleCast：模拟玩家圆形碰撞体的移动路径
+            // CircleCast 直接检测：返回的 distance 是圆心移动距离
+            // 当 distance 位置时，圆的边缘刚好接触墙壁
             RaycastHit2D hit = Physics2D.CircleCast(
                 start, 
                 playerRadius, 
@@ -314,11 +321,11 @@ namespace EdgeRunner.Player.Systems
                 return target; // 没有碰撞，直接到达目标
             }
 
-            // 计算安全停止位置
-            // hit.distance 是圆心移动的距离，需要再留一点余量
-            float safeDistance = Mathf.Max(0f, hit.distance - collisionOffset);
-            
-            return start + dir * safeDistance;
+            // hit.distance 是圆心可以移动的距离（此时边缘刚好接触墙）
+            // 只需要减去一个小的安全边距即可
+            float finalDist = Mathf.Max(0f, hit.distance - collisionOffset);
+
+            return start + dir * finalDist;
         }
         
         // ═══════════════════════════════════════════════════════════════

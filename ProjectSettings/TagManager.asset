@@ -14,16 +14,16 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Ground
+  - 
   - Water
   - UI
+  - Player
+  - Enemy
+  - Ground
   - Wall
   - DeathZone
   - Billboard
   - WinZone
-  - 
-  - 
-  - 
   - 
   - 
   - 

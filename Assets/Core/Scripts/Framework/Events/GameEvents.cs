@@ -233,6 +233,22 @@ namespace EdgeRunner.Events
         public float Range;
     }
 
+    /// <summary>
+    /// 连击数变化事件
+    /// </summary>
+    public struct ComboChangedEvent : IGameEvent
+    {
+        /// <summary>当前连击数</summary>
+        public int ComboCount;
+        /// <summary>是否是终结技</summary>
+        public bool IsFinisher;
+    }
+
+    /// <summary>
+    /// 连击重置事件
+    /// </summary>
+    public struct ComboResetEvent : IGameEvent { }
+
     // ═══════════════════════════════════════════════════════════════════════
     //                          游戏状态事件
     // ═══════════════════════════════════════════════════════════════════════
