@@ -1,4 +1,7 @@
 using UnityEngine;
+using VContainer;
+using EdgeRunner.Player;
+using EdgeRunner.Player.Systems;
 
 [RequireComponent(typeof(Rigidbody2D))]
 
@@ -13,13 +16,32 @@ public class PlayerDeathHandler : MonoBehaviour
     private bool isDead = false;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
-    private PlayerMovement playerMovement; // 你的移动脚本
+    
+    // 新版模块化引用
+    private PlayerController playerController;
+    private PlayerInputHandler inputHandler;
+    private PlayerMovement movement;
+    private PlayerCombatSystem combatSystem;
+
+    // DI 注入（优先使用）
+    private IGameStateManager gameStateManager;
+
+    [Inject]
+    public void Construct(IGameStateManager gameStateManager)
+    {
+        this.gameStateManager = gameStateManager;
+    }
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponentInChildren<SpriteRenderer>();
-        playerMovement = GetComponent<PlayerMovement>();
+        
+        playerController = GetComponent<PlayerController>();
+        inputHandler = GetComponent<PlayerInputHandler>();
+        movement = GetComponent<PlayerMovement>();
+        combatSystem = GetComponent<PlayerCombatSystem>();
+        
         deathZoneLayer = LayerMask.NameToLayer(deathZoneLayerName);
     }
 
@@ -60,9 +82,24 @@ public class PlayerDeathHandler : MonoBehaviour
         rb.angularVelocity = 0f;
         rb.bodyType = RigidbodyType2D.Kinematic; // 防止物理干扰
 
-        // 2. 禁用移动脚本
-        if (playerMovement != null)
-            playerMovement.enabled = false;
+        // 2. 禁用关键控制脚本
+        if (playerController != null)
+        {
+            playerController.enabled = false;
+        }
+        if (inputHandler != null)
+        {
+            inputHandler.enabled = false;
+        }
+        if (movement != null)
+        {
+            movement.CancelDash();
+            movement.enabled = false;
+        }
+        if (combatSystem != null)
+        {
+            combatSystem.enabled = false;
+        }
 
         // 3. 视觉反馈：变红
         if (sr != null)
@@ -71,18 +108,19 @@ public class PlayerDeathHandler : MonoBehaviour
         Debug.Log("玩家死亡！准备显示死亡界面...");
 
         // 4. 通知 GameStateManager 显示死亡界面（带延迟淡入）
-        if (GameStateManager.Instance != null)
+        // 优先使用 DI 注入的服务
+        if (gameStateManager != null)
         {
+            gameStateManager.TriggerDeath();
+        }
+        else if (GameStateManager.Instance != null)
+        {
+            // 向后兼容：回退到静态单例
             GameStateManager.Instance.PlayerDieWithDelay(deathStayBeforeFade);
         }
         else
         {
             Debug.LogError("GameStateManager 未找到！请确保在 MainMenu 场景中创建！");
-            // Debug.LogError("GameStateManager 未找到！创建临时单例...");
-            // // 自动创建！解决直接玩关卡问题
-            // var tempManager = new GameObject("GameStateManager");
-            // tempManager.AddComponent<GameStateManager>();
-            // GameStateManager.Instance.PlayerDieWithDelay(deathStayBeforeFade);
         }
     }
 
@@ -103,7 +141,24 @@ public class PlayerDeathHandler : MonoBehaviour
     {
         isDead = false;
         rb.bodyType = RigidbodyType2D.Dynamic;
-        if (playerMovement != null) playerMovement.enabled = true;
+        
+        if (playerController != null)
+        {
+            playerController.enabled = true;
+        }
+        if (inputHandler != null)
+        {
+            inputHandler.enabled = true;
+        }
+        if (movement != null)
+        {
+            movement.enabled = true;
+        }
+        if (combatSystem != null)
+        {
+            combatSystem.enabled = true;
+        }
+        
         if (sr != null) sr.color = Color.white;
     }
 }

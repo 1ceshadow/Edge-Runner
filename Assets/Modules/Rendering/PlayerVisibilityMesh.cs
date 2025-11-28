@@ -14,10 +14,10 @@ public class PlayerVisibilityMesh : MonoBehaviour
 
     [SerializeField] private string wallTilemapName = "Wall";           // 墙体 Tilemap GameObject 名字
     //[SerializeField] private LayerMask wallLayerMask = -1;             // 墙体所处 Layer（备用，当前未使用 Raycast）
-    [SerializeField] private float rangeRadius = 8f;                   // 玩家最大可视距离
+    //[SerializeField] private float rangeRadius = 8f;                   // 玩家最大可视距离
     [SerializeField] private float rayLength = 8f;                   // 射线延伸的最远距离
     [SerializeField] private bool useWallColor = false;              // 用wall的颜色还是材质
-    [SerializeField] private int sortingLayerID = 5;
+    [SerializeField] private string sortingLayerName = "Player";
     [SerializeField] private int sortingOrder = 20;                    // 遮罩渲染顺序
     [SerializeField] private float screenMargin = 5f;                  // 相机边界额外扩展距离，防止边缘闪烁
 
@@ -49,7 +49,6 @@ public class PlayerVisibilityMesh : MonoBehaviour
         }
 
 
-        //var shader = Shader.Find("Sprites/Default");
         var sr = GetComponentInChildren<SpriteRenderer>();
 
         // ------------------- 创建墙体遮罩物体 -------------------
@@ -58,8 +57,7 @@ public class PlayerVisibilityMesh : MonoBehaviour
         meshFilter = wallGo.AddComponent<MeshFilter>();
         meshRenderer = wallGo.AddComponent<MeshRenderer>();
 
-        //if (sr) meshRenderer.sortingLayerID = sr.sortingLayerID;
-        meshRenderer.sortingLayerID = sortingLayerID;
+        meshRenderer.sortingLayerID = ResolveSortingLayerId(sr);
         meshRenderer.sortingOrder = sortingOrder;
 
         mesh = new Mesh();
@@ -67,6 +65,30 @@ public class PlayerVisibilityMesh : MonoBehaviour
         mesh.MarkDynamic();
         meshFilter.sharedMesh = mesh;
 
+    }
+
+    private int ResolveSortingLayerId(SpriteRenderer referenceRenderer)
+    {
+        if (referenceRenderer != null)
+        {
+            return referenceRenderer.sortingLayerID;
+        }
+
+        if (!string.IsNullOrWhiteSpace(sortingLayerName))
+        {
+            var layers = SortingLayer.layers;
+            for (int i = 0; i < layers.Length; i++)
+            {
+                if (layers[i].name == sortingLayerName)
+                {
+                    return layers[i].id;
+                }
+            }
+
+            Debug.LogWarning($"[PlayerVisibilityMesh] 未找到 Sorting Layer '{sortingLayerName}'，已回退到 Default 层");
+        }
+
+        return SortingLayer.NameToID("Default");
     }
 
     void OnDestroy()

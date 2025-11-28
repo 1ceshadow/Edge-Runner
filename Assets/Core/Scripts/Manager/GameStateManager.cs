@@ -18,6 +18,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
+using EdgeRunner.Events;
 //using System.Linq;
 
 public class GameStateManager : MonoBehaviour, IGameStateManager
@@ -165,7 +166,27 @@ public class GameStateManager : MonoBehaviour, IGameStateManager
         //ResumeGame();
         ResetGameState();
         HideAllUI();
-
+        
+        // 🔔 发布场景加载事件
+        int levelIndex = System.Array.IndexOf(levelScenes, scene.name);
+        bool isMainMenu = scene.name == mainMenuScene;
+        
+        EventBus.Publish(new SceneLoadedEvent
+        {
+            SceneName = scene.name,
+            SceneIndex = levelIndex,
+            IsMainMenu = isMainMenu
+        });
+        
+        // 如果是游戏关卡，发布关卡开始事件
+        if (levelIndex >= 0)
+        {
+            EventBus.Publish(new LevelStartedEvent
+            {
+                LevelIndex = levelIndex,
+                LevelName = scene.name
+            });
+        }
     }
 
 
@@ -232,6 +253,10 @@ public class GameStateManager : MonoBehaviour, IGameStateManager
         isPaused = true;
         Time.timeScale = 0f;
         pauseMenuUI?.SetActive(true);
+        
+        // 🔔 发布暂停事件
+        EventBus.Publish(new GamePausedEvent { IsPaused = true });
+        
         Debug.Log("游戏暂停");
     }
 
@@ -240,6 +265,10 @@ public class GameStateManager : MonoBehaviour, IGameStateManager
         isPaused = false;
         Time.timeScale = 1f;
         pauseMenuUI?.SetActive(false);
+        
+        // 🔔 发布恢复事件
+        EventBus.Publish(new GamePausedEvent { IsPaused = false });
+        
         Debug.Log("游戏继续");
     }
     
@@ -251,6 +280,15 @@ public class GameStateManager : MonoBehaviour, IGameStateManager
         if (winPanel) winPanel.SetActive(true);
         StopAllCoroutines();
         StartCoroutine(FadeInWin());
+        
+        // 🔔 发布胜利事件
+        int levelIndex = GetCurrentLevelIndex();
+        EventBus.Publish(new GameWonEvent
+        {
+            LevelIndex = levelIndex,
+            LevelName = SceneManager.GetActiveScene().name,
+            CompletionTime = Time.timeSinceLevelLoad
+        });
     }
     
     public void TriggerDeath()
@@ -288,6 +326,14 @@ public class GameStateManager : MonoBehaviour, IGameStateManager
             deathPanel.SetActive(true);
             StartCoroutine(FadeInDeathWithDelay(delay));  // 非阻塞协程
         }
+        
+        // 🔔 发布游戏失败事件
+        EventBus.Publish(new GameOverEvent
+        {
+            Reason = "玩家死亡",
+            LevelIndex = GetCurrentLevelIndex()
+        });
+        
         Debug.Log("💀 死亡触发，延迟淡入...");
     }
 
@@ -330,46 +376,50 @@ public class GameStateManager : MonoBehaviour, IGameStateManager
     // =============================================================
     //                          协程动画
     // =============================================================
-    private IEnumerator FadeInWin()
+    
+    /// <summary>
+    /// 通用图片淡入协程
+    /// </summary>
+    /// <param name="image">要淡入的图片</param>
+    /// <param name="duration">淡入持续时间</param>
+    /// <param name="delay">淡入前的延迟（可选）</param>
+    private IEnumerator FadeInImage(UnityEngine.UI.Image image, float duration, float delay = 0f)
     {
-        if (winFadeImage == null) yield break;
-        winFadeImage.color = new Color(1, 1, 1, 0);
+        if (image == null) yield break;
+        
+        image.color = new Color(1, 1, 1, 0);
+        
+        // 延迟阶段
+        if (delay > 0f)
+        {
+            float timer = 0f;
+            while (timer < delay)
+            {
+                timer += Time.unscaledDeltaTime;
+                yield return null;
+            }
+        }
+        
+        // 淡入阶段
         float t = 0f;
-        while (t < fadeDuration)
+        while (t < duration)
         {
             t += Time.unscaledDeltaTime;
-            winFadeImage.color = new Color(1, 1, 1, Mathf.Lerp(0, 1, t / fadeDuration));
+            image.color = new Color(1, 1, 1, Mathf.Lerp(0, 1, t / duration));
             yield return null;
         }
+        
+        image.color = Color.white;
+    }
+    
+    private IEnumerator FadeInWin()
+    {
+        yield return FadeInImage(winFadeImage, fadeDuration);
     }
 
     private IEnumerator FadeInDeathWithDelay(float delay)
     {
-        deathFadeImage.color = new Color(1, 1, 1, 0);
-        
-        // 死亡停留阶段
-        float timer = 0f;
-        while (timer < delay)
-        {
-            timer += Time.unscaledDeltaTime;
-            yield return null;
-        }
-
-        // 淡入黑屏
-        if (deathFadeImage == null) yield break;
-
-        
-        float t = 0f;
-
-        while (t < fadeDuration)
-        {
-            t += Time.unscaledDeltaTime;
-            float alpha = Mathf.Lerp(0, 1, t / fadeDuration);
-            deathFadeImage.color = new Color(1, 1, 1, alpha);
-            yield return null;
-        }
-
-        deathFadeImage.color = Color.white;
+        yield return FadeInImage(deathFadeImage, fadeDuration, delay);
     }
 
     // private IEnumerator FadeInWin()
@@ -394,6 +444,15 @@ public class GameStateManager : MonoBehaviour, IGameStateManager
         string current = SceneManager.GetActiveScene().name;
         int index = System.Array.IndexOf(levelScenes, current);
         return (index >= 0 && index < levelScenes.Length - 1) ? levelScenes[index + 1] : null;
+    }
+    
+    /// <summary>
+    /// 获取当前关卡索引（用于事件发布）
+    /// </summary>
+    private int GetCurrentLevelIndex()
+    {
+        string current = SceneManager.GetActiveScene().name;
+        return System.Array.IndexOf(levelScenes, current);
     }
 
     // private bool IsInGameScene()

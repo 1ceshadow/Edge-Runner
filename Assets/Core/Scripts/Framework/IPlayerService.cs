@@ -1,4 +1,5 @@
 using UnityEngine;
+using EdgeRunner.Player;
 
 /// <summary>
 /// 玩家服务接口
@@ -8,6 +9,7 @@ public interface IPlayerService
 {
     Transform Transform { get; }
     GameObject GameObject { get; }
+    PlayerController Controller { get; }
     
     T GetComponent<T>() where T : Component;
     bool TryGetComponent<T>(out T component) where T : Component;

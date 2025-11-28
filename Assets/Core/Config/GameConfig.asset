@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98bcd09968329764a8b59469c63b4cc6, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::EdgeRunner.Config.GameConfig
+  Player:
+    MoveSpeed: 6.2
+    RotationSmoothness: 8
+    DashDistance: 3.9
+    DashCooldown: 0.2
+    PerfectDashDetectRange: 1.4
+    PerfectDashReward: 8
+    TimeSlowScale: 0.3
+    TimeSlowPlayerSpeed: 20
+    MaxEnergy: 80
+    EnergyRechargeRate: 2
+    EnergyDrainRate: 10
+    MinEnergyThreshold: 10
+    KillEnergyReward: 10
+    WallCheckExtra: 0.8
+  Enemy:
+    ShootInterval: 1.8
+    ShootDistance: 20
+    BulletCount: 8
+    SpreadAngle: 10
+    MaxHealth: 1
+    KillEnergyReward: 10
+  Bullet:
+    Speed: 11.8
+    MaxDistance: 16
+    Damage: 1
+    UseContinuousDetection: 1
+    DetectionStep: 0.5
+  Camera:
+    FollowSmoothness: 5
+    Offset: {x: 0, y: 0, z: -10}
+    ZoomLevel: 5
+  Audio:
+    MasterVolume: 1
+    BGMVolume: 0.7
+    SFXVolume: 1
+  Pool:
+    BulletPoolSize: 100
+    EnemyPoolSize: 20
+    VFXPoolSize: 50

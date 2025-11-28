@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BulletManager : MonoBehaviour
+public class BulletManager : MonoBehaviour, IBulletManager
 {
-    // 静态实例，让其他脚本可以直接访问
+    // 静态实例（保留向后兼容，推荐通过 DI 注入 IBulletManager）
     public static BulletManager Instance;
     
     private List<Transform> activeBullets = new List<Transform>();

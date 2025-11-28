@@ -1,42 +1,42 @@
-using UnityEngine;                          
+using UnityEngine;
+using EdgeRunner.Player;
 
+/// <summary>
+/// PlayerRoot：IPlayerService 的唯一实现，向 DI 提供统一入口。
+/// 负责暴露 <see cref="PlayerController"/> 以及相关子系统，避免外部脚本直接使用 Find。
+/// </summary>
+[DisallowMultipleComponent]
+[RequireComponent(typeof(PlayerController))]
 public class Player : MonoBehaviour, IPlayerService
 {
-    public Rigidbody2D rb;
-    public Animator animator;
+    private PlayerController controller;
 
-    private float xInput;
-    private float yInput;
-    private const float moveSpeed = 5f;
-    
-    // IPlayerService 实现（显式接口实现）
+    public PlayerController Controller => controller;
+
     Transform IPlayerService.Transform => transform;
     GameObject IPlayerService.GameObject => gameObject;
-    
+    PlayerController IPlayerService.Controller => controller;
+
+    private void Awake()
+    {
+        controller = GetComponent<PlayerController>();
+        if (controller == null)
+        {
+            Debug.LogError("PlayerRoot 缺少 PlayerController 组件，无法完成依赖注入");
+        }
+        else
+        {
+            Debug.Log("✓ PlayerRoot: IPlayerService 已就绪");
+        }
+    }
+
     T IPlayerService.GetComponent<T>()
     {
         return GetComponent<T>();
     }
-    
+
     bool IPlayerService.TryGetComponent<T>(out T component)
     {
         return TryGetComponent(out component);
     }
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Awake()
-    {
-        rb = GetComponent<Rigidbody2D>();
-        animator = GetComponentInChildren<Animator>();
-        
-        // VContainer 会自动注册此组件
-        Debug.Log("✓ Player 初始化完成（由 VContainer 管理）");
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
 }

@@ -124,13 +124,16 @@ GameObject:
   - component: {fileID: 1085973962939880619}
   - component: {fileID: 6335963616773616376}
   - component: {fileID: 1236161396304436030}
-  - component: {fileID: 3925072843339881521}
-  - component: {fileID: 5191919938526807265}
-  - component: {fileID: 7421646976793643936}
-  - component: {fileID: 2269286116379146565}
-  - component: {fileID: 939577091634522217}
   - component: {fileID: 7968112813112175588}
-  - component: {fileID: -5269905453829506135}
+  - component: {fileID: -8846081554515540383}
+  - component: {fileID: -9192366933358419179}
+  - component: {fileID: -2267093438920338524}
+  - component: {fileID: 7884278509784500298}
+  - component: {fileID: -8189520063998091090}
+  - component: {fileID: 4596461948225389618}
+  - component: {fileID: -9176888866347603616}
+  - component: {fileID: 4406667515085735144}
+  - component: {fileID: -3095125316864231718}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -199,14 +202,14 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5308266556534980357}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -218,98 +221,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &3925072843339881521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5308266556534980357}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b883816b678a7146bae7bf3cbc4c63b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  rb: {fileID: 0}
-  animator: {fileID: 0}
---- !u!114 &5191919938526807265
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5308266556534980357}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b663fda77211974bb3f66fd8a7947e5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  moveSpeed: 6.2
-  dashDistance: 3.9
-  dashCooldown: 0.2
-  dashAudioClip: {fileID: 8300000, guid: 6e237870b57aa934895ec4478190cd88, type: 3}
-  timeSlowScale: 0.3
-  timeSlowPlayerSpeed: 20
-  timeSlowStartClip: {fileID: 8300000, guid: 9ec14b970df747d46b6d89c839329cf4, type: 3}
-  timeSlowEndClip: {fileID: 8300000, guid: 84d1b1b92bede1a4393d49ee44edae44, type: 3}
-  maxEnergy: 80
-  rechargeRate: 2
-  energyDrainRate: 10
-  minEnergyThreshold: 10
-  perfectDashReward: 8
-  killReward0: 10
-  isKillRewarded0: 0
-  perfectDashDetectRange: 1.6
-  isPerfectDashed: 0
-  isRewarded: 0
-  currentEnergy: 80
-  wallCheckExtra: 0.8
-  wallLayerMask:
-    serializedVersion: 2
-    m_Bits: 256
---- !u!114 &7421646976793643936
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5308266556534980357}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c4682a0f2b055048ab38487bdb11d6d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  wallTilemapName: Wall
-  collisionOffset: 0.1
---- !u!114 &2269286116379146565
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5308266556534980357}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2930a4aa8ae84124fa6e7039c83c38df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Death
-  deathZoneLayerName: DeathZone
-  deathStayBeforeFade: 1
-  deathColor: {r: 1, g: 0, b: 0, a: 1}
---- !u!114 &939577091634522217
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5308266556534980357}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf9b05caae8347d46b70c2e41330a675, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  attackSound: {fileID: 8300000, guid: a544f4513b377d34ba199e6c87dc96c4, type: 3}
-  attackEffectColor: {r: 1, g: 0.5, b: 0, a: 0.3}
 --- !u!82 &7968112813112175588
 AudioSource:
   m_ObjectHideFlags: 0
@@ -407,7 +318,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &-5269905453829506135
+--- !u!114 &-8846081554515540383
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -416,17 +327,131 @@ MonoBehaviour:
   m_GameObject: {fileID: 5308266556534980357}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7004fd45e9b82134c9627814095e3e78, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b883816b678a7146bae7bf3cbc4c63b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerVisibilityMesh
-  wallTilemapName: Wall
-  rangeRadius: 8
-  rayLength: 100
-  useWallColor: 0
-  sortingLayerID: 5
-  sortingOrder: 15
-  screenMargin: 1
-  useFacingCull: 1
+  m_EditorClassIdentifier: Assembly-CSharp::Player
+--- !u!114 &-9192366933358419179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5308266556534980357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 307e63335c0b70247999b35f84a122db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EdgeRunner.Player.PlayerController
+  wallLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  dashAudioClip: {fileID: 8300000, guid: 6e237870b57aa934895ec4478190cd88, type: 3}
+  timeSlowStartClip: {fileID: 8300000, guid: 9ec14b970df747d46b6d89c839329cf4, type: 3}
+  timeSlowEndClip: {fileID: 8300000, guid: 84d1b1b92bede1a4393d49ee44edae44, type: 3}
+--- !u!114 &-2267093438920338524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5308266556534980357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 694854c2d1fec0f4486eb7471da63d9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EdgeRunner.Player.States.PlayerStateMachine
+--- !u!114 &7884278509784500298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5308266556534980357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc6363ce341824b439211c08ff5a34b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EdgeRunner.Player.Systems.PlayerMovement
+  wallLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  wallCheckExtra: 0.8
+  collisionOffset: 0.05
+--- !u!114 &-8189520063998091090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5308266556534980357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7e83cf2996789c4db352aa85e3845d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EdgeRunner.Player.Systems.PlayerInputHandler
+--- !u!114 &4596461948225389618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5308266556534980357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1eec1bf8bdb00584ea12b3da9e1c96de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EdgeRunner.Player.Systems.PlayerEnergySystem
+  eventThreshold: 0.05
+--- !u!114 &-9176888866347603616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5308266556534980357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22667f5a585160d4a92e2f4285b35db9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EdgeRunner.Player.Systems.PlayerHealthSystem
+  maxHealth: 3
+--- !u!114 &4406667515085735144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5308266556534980357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9b384069a9b3fe4f81b8f6ab40f282c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EdgeRunner.Player.Systems.PlayerCombatSystem
+  attackCollider: {fileID: 0}
+  hitboxActiveTime: 0.12
+  enemyLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  attackCooldown: 0.3
+  attackDamage: 1
+  attackClip: {fileID: 8300000, guid: a544f4513b377d34ba199e6c87dc96c4, type: 3}
+  animator: {fileID: 0}
+  attackTriggerName: TrigAttack
+--- !u!114 &-3095125316864231718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5308266556534980357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2930a4aa8ae84124fa6e7039c83c38df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDeathHandler
+  deathZoneLayerName: DeathZone
+  deathStayBeforeFade: 1
+  deathColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &6295336745516607738
 GameObject:
   m_ObjectHideFlags: 0
@@ -543,7 +568,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d72b9ac6d7c02094da89f4f473f9f645, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  playerMovement: {fileID: 5191919938526807265}
   energyBarImg: {fileID: 6249056257420177334}
   RewardEffecctImg: {fileID: 4939424440138518656}
 --- !u!1 &7740273163548563511

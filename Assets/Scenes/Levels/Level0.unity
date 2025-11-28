@@ -687,6 +687,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -5269905453829506135, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 939577091634522217, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
       propertyPath: attackRange
       value: 2.8
@@ -736,6 +740,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2269286116379146565, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2269286116379146565, guid: da8d4f5416f37794fa83aa9fd137c740, type: 3}
       propertyPath: deathImage
       value: 
       objectReference: {fileID: 0}
@@ -767,7 +775,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 0}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -33885,11 +33894,11 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 619394802}
-  - {fileID: 519420032}
+  - {fileID: 1099976812}
   - {fileID: 361800932}
+  - {fileID: 519420032}
   - {fileID: 936081087}
   - {fileID: 685851841}
   - {fileID: 2068799679}
   - {fileID: 1920458030}
   - {fileID: 3970905334422666664}
-  - {fileID: 1099976812}

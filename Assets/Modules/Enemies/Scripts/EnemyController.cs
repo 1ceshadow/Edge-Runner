@@ -1,112 +1,181 @@
+// ═══════════════════════════════════════════════════════════════════════════
+//  EnemyController - 敌人控制器（重构版）
+//  
+//  职责：
+//  - 敌人行为控制（射击、面向玩家）
+//  - 生命值管理
+//  - 死亡处理
+//  
+//  配置来源：
+//  - 所有参数从 ConfigManager.Enemy 读取
+//  - 子弹参数从 ConfigManager.Bullet 读取
+// ═══════════════════════════════════════════════════════════════════════════
+
 using UnityEngine;
 using VContainer;
+using EdgeRunner.Events;
+using EdgeRunner.Config;
 
 public class EnemyController : MonoBehaviour
 {
-    [Header("射击设置")]
-    public float shootInterval = 1.8f;
-    public float shootDistance = 20f;
-    public int bulletCount = 8;
-    public float spreadAngle = 10f;
-    public GameObject bulletPrefab;
-    
-    [Header("子弹参数")]
-    public float bulletSpeed = 11.8f;
-    public float bulletMaxDistance = 16f;
-    
+    // ═══════════════════════════════════════════════════════════════
+    //                          资源引用（非参数）
+    // ═══════════════════════════════════════════════════════════════
+
+    [Header("═══ 敌人类型标识 ═══")]
+    [SerializeField] private string enemyType = "Shooter";
+
+    // ═══════════════════════════════════════════════════════════════
+    //                          配置访问（从 ConfigManager）
+    // ═══════════════════════════════════════════════════════════════
+
+    // 敌人配置 - 使用 ConfigManager 安全访问方法
+    public float ShootInterval => ConfigManager.GetShootInterval();
+    public float ShootDistance => ConfigManager.GetShootDistance();
+    public int BulletCount => ConfigManager.GetEnemyBulletCount();
+    public float SpreadAngle => ConfigManager.GetSpreadAngle();
+    public int MaxHealth => ConfigManager.GetEnemyMaxHealth();
+    public float KillEnergyReward => ConfigManager.GetEnemyKillReward();
+
+    // 子弹配置
+    public float BulletSpeed => ConfigManager.GetBulletSpeed();
+    public float BulletMaxDistance => ConfigManager.GetBulletMaxDistance();
+
+    // ═══════════════════════════════════════════════════════════════
+    //                          运行时状态
+    // ═══════════════════════════════════════════════════════════════
+
     private Transform player;
     private float shootTimer;
     private bool canSeePlayer = false;
+    private int currentHealth;
 
-    [Header("生命值设置")]
-    public int maxHealth = 1;
-    public int currentHealth;
-
-    [Header("时缓能量奖励")]
-    private PlayerMovement playerMovement;
-    
     // VContainer 依赖注入
     private IPlayerService playerService;
-    
+    private IBulletService bulletService;
+
+    /// <summary>
+    /// VContainer 依赖注入
+    /// IBulletService 在 ProjectLifetimeScope 中注册
+    /// IPlayerService 在 GameLifetimeScope 中注册
+    /// </summary>
     [Inject]
-    public void Construct(IPlayerService playerService)
+    public void Construct(IPlayerService playerService, IBulletService bulletService)
     {
         this.playerService = playerService;
+        this.bulletService = bulletService;
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    //                          生命周期
+    // ═══════════════════════════════════════════════════════════════
 
     void Start()
     {
+        // 验证配置
+        ValidateConfig();
+
         // 初始化生命值
-        currentHealth = maxHealth;
+        currentHealth = MaxHealth;
+
+        // 使用注入的玩家服务获取玩家 Transform
+        InitializePlayerReference();
         
-        // 使用注入的玩家服务
+        // 获取 BulletService（优先使用注入，其次查找）
+        if (bulletService == null)
+        {
+            bulletService = FindFirstObjectByType<BulletService>();
+        }
+
+        shootTimer = ShootInterval;
+    }
+    
+    /// <summary>
+    /// 初始化玩家引用
+    /// </summary>
+    private void InitializePlayerReference()
+    {
         if (playerService != null)
         {
             player = playerService.Transform;
-            
-            // 尝试获取 PlayerMovement 组件
-            if (playerService.TryGetComponent<PlayerMovement>(out var movement))
-            {
-                playerMovement = movement;
-            }
-            
-            Debug.Log("✓ EnemyController: 已通过 VContainer 获取玩家服务");
+            return;
+        }
+        
+        // 回退：尝试通过 Player 组件查找
+        var playerObj = FindFirstObjectByType<Player>();
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+            Debug.LogWarning($"[{nameof(EnemyController)}] 使用回退方式查找玩家（建议配置 VContainer）");
         }
         else
         {
-            Debug.LogError("EnemyController: PlayerService 未注入，请检查 VContainer 配置");
+            Debug.LogError($"[{nameof(EnemyController)}] 未找到玩家！");
         }
-        
-        shootTimer = shootInterval;
+    }
+
+    private void ValidateConfig()
+    {
+        if (ConfigManager.Enemy == null)
+        {
+            Debug.LogWarning(
+                $"[EnemyController:{gameObject.name}] ⚠ ConfigManager.Enemy 为 null，使用默认值\n" +
+                "请确保 ConfigManager 已正确设置。"
+            );
+        }
+        else
+        {
+            Debug.Log($"✓ EnemyController: 配置已加载 (射击间隔={ShootInterval}, 子弹数={BulletCount})");
+        }
     }
 
     void Update()
     {
         if (player == null) return;
-        
+
         UpdateFacingDirection();
-        
+
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-        canSeePlayer = distanceToPlayer <= shootDistance;
-        
+        canSeePlayer = distanceToPlayer <= ShootDistance;
+
         if (canSeePlayer)
         {
             shootTimer -= Time.deltaTime;
             if (shootTimer <= 0f)
             {
                 Shoot();
-                shootTimer = shootInterval;
+                shootTimer = ShootInterval;
             }
         }
         else
         {
-            shootTimer = shootInterval;
+            shootTimer = ShootInterval;
         }
     }
-    
+
+    // ═══════════════════════════════════════════════════════════════
+    //                          行为方法
+    // ═══════════════════════════════════════════════════════════════
+
     void UpdateFacingDirection()
     {
         if (player == null) return;
-        
+
         Vector2 directionToPlayer = player.position - transform.position;
         float angle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg + 90;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
-    
+
     void Shoot()
     {
-        // if (bulletPrefab == null)
-        // {
-        //     Debug.LogError("EnemyController: bulletPrefab未设置！");
-        //     return;
-        // }
-        
         Vector2 directionToPlayer = (player.position - transform.position).normalized;
         float baseAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
-        
-        float angleStep = spreadAngle / (bulletCount - 1);
+
+        int bulletCount = BulletCount;
+        float spreadAngle = SpreadAngle;
+        float angleStep = bulletCount > 1 ? spreadAngle / (bulletCount - 1) : 0f;
         float startAngle = baseAngle - (spreadAngle / 2f);
-        
+
         for (int i = 0; i < bulletCount; i++)
         {
             float currentAngle = startAngle + (angleStep * i);
@@ -114,118 +183,100 @@ public class EnemyController : MonoBehaviour
                 Mathf.Cos(currentAngle * Mathf.Deg2Rad),
                 Mathf.Sin(currentAngle * Mathf.Deg2Rad)
             ).normalized;
-            
-            GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-            BulletController bulletController = bullet.GetComponent<BulletController>();
-            
-            if (bulletController != null)
-            {
-                bulletController.speed = bulletSpeed;
-                bulletController.maxDistance = bulletMaxDistance;
-                bulletController.SetDirection(bulletDirection);
-            }
-            
-            bullet.transform.rotation = Quaternion.Euler(0f, 0f, currentAngle);
+
+            SpawnBullet(bulletDirection);
         }
-        
-        Debug.Log("敌人射击！");
     }
+
+    private void SpawnBullet(Vector2 direction)
+    {
+        if (bulletService == null)
+        {
+            Debug.LogWarning("EnemyController: BulletService 未注入，无法生成子弹");
+            return;
+        }
+
+        bulletService.SpawnBullet(new BulletSpawnRequest
+        {
+            Position = transform.position,
+            Direction = direction,
+            SpeedOverride = BulletSpeed,
+            MaxDistanceOverride = BulletMaxDistance,
+            IsPlayerBullet = false,
+            SourceId = enemyType,
+            DamageOverride = null
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //                          伤害处理
+    // ═══════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// 受到伤害
+    /// </summary>
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        Debug.Log($"敌人受到 {damage} 点伤害，剩余生命: {currentHealth}");
+
+        // 播放受伤效果
+        PlayHitEffect();
+
+        // 检查死亡
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    /// <summary>
+    /// 播放受伤效果
+    /// </summary>
+    private void PlayHitEffect()
+    {
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            StartCoroutine(HitEffectCoroutine(sr));
+        }
+    }
+
+    private System.Collections.IEnumerator HitEffectCoroutine(SpriteRenderer sr)
+    {
+        Color originalColor = sr.color;
+        sr.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        sr.color = originalColor;
+    }
+
+    /// <summary>
+    /// 死亡处理
+    /// </summary>
+    private void Die()
+    {
+        Debug.Log("敌人死亡！");
+
+        // 🔔 发布敌人被击败事件（事件驱动，解耦奖励逻辑）
+        EventBus.Publish(new EnemyDefeatedEvent
+        {
+            Position = transform.position,
+            EnemyType = enemyType,
+            EnergyReward = KillEnergyReward,
+            KilledByPlayer = true
+        });
+
+        // 销毁敌人
+        Destroy(gameObject);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //                          Gizmos
+    // ═══════════════════════════════════════════════════════════════
 
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, shootDistance);
+        Gizmos.DrawWireSphere(transform.position, ShootDistance);
     }
-    
-/// <summary>
-/// 受到伤害
-/// </summary>
-public void TakeDamage(int damage)
-{
-    currentHealth -= damage;
-    Debug.Log($"敌人受到 {damage} 点伤害，剩余生命: {currentHealth}");
-    
-    // 播放受伤效果
-    // PlayHitEffect();
-    
-    // 检查死亡
-    if (currentHealth <= 0)
-    {
-        Die();
-    }
-}
-
-/// <summary>
-/// 播放受伤效果
-/// </summary>
-private void PlayHitEffect()
-{
-    // 简单的颜色闪烁
-    SpriteRenderer sr = GetComponent<SpriteRenderer>();
-    if (sr != null)
-    {
-        StartCoroutine(HitEffectCoroutine(sr));
-    }
-}
-
-private System.Collections.IEnumerator HitEffectCoroutine(SpriteRenderer sr)
-{
-    Color originalColor = sr.color;
-    sr.color = Color.red;
-    yield return new WaitForSeconds(0.1f);
-    sr.color = originalColor;
-}
-
-/// <summary>
-/// 死亡处理
-/// </summary>
-private void Die()
-{
-    Debug.Log("敌人死亡！");
-    
-    // 播放死亡效果（可选）
-    // PlayDeathEffect();
-
-    // 时缓能量奖励
-    if (playerMovement != null)
-    {
-        playerMovement.currentEnergy += playerMovement.killReward0;
-        playerMovement.isKillRewarded0 = true;
-        playerMovement.isRewarded = true;
-    }
-    
-    // 销毁敌人
-    Destroy(gameObject);
-}
-
-/// <summary>
-/// 播放死亡效果
-/// </summary>
-private void PlayDeathEffect()
-{
-    // 可以在这里添加死亡动画、音效等
-    // 简单的消失效果
-    StartCoroutine(FadeOutAndDestroy());
-}
-
-private System.Collections.IEnumerator FadeOutAndDestroy()
-{
-    SpriteRenderer sr = GetComponent<SpriteRenderer>();
-    if (sr != null)
-    {
-        float fadeTime = 0.3f;
-        float elapsed = 0f;
-        Color startColor = sr.color;
-        
-        while (elapsed < fadeTime)
-        {
-            elapsed += Time.deltaTime;
-            float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeTime);
-            sr.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
-            yield return null;
-        }
-    }
-    
-    Destroy(gameObject);
-}
 }

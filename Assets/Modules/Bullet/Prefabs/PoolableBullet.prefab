@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 4203432130573240329}
   - component: {fileID: 1229502243851125220}
   - component: {fileID: 6427657954001937333}
-  - component: {fileID: 3053532470944265832}
+  - component: {fileID: 6003052003500527719}
   m_Layer: 0
-  m_Name: Bullet
+  m_Name: PoolableBullet
   m_TagString: Bullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -156,7 +156,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &3053532470944265832
+--- !u!114 &6003052003500527719
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -165,11 +165,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 7454175211541953336}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fc0b601da2fbba4fa4d03d949067073, type: 3}
+  m_Script: {fileID: 11500000, guid: e7f82935f9c87544c8cb8c5a528c71c4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BulletController
-  speed: 11.8
-  maxDistance: 16
-  damage: 1
-  useContinuousDetection: 1
-  detectionStep: 0.5
+  m_EditorClassIdentifier: Assembly-CSharp::PoolableBullet
