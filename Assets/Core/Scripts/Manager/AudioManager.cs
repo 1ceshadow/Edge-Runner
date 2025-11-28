@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : MonoBehaviour, IAudioManager
 {
-    public static AudioManager Instance;  // 单例访问
+    public static AudioManager Instance;  // 单例访问（保留向后兼容）
 
     [Header("BGM 设置")]
     
@@ -27,6 +27,8 @@ public class AudioManager : MonoBehaviour
             if (bgmSource == null)
                 bgmSource = GetComponent<AudioSource>();
 
+            Debug.Log("✓ AudioManager 初始化完成（将通过 VContainer 注册）");
+
             // 监听场景加载事件
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
@@ -41,7 +43,10 @@ public class AudioManager : MonoBehaviour
     {
         // 清理事件监听
         if (Instance == this)
+        {
             SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+        // VContainer 会自动管理生命周期
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -85,6 +90,24 @@ public class AudioManager : MonoBehaviour
 
             fadeCoroutine = StartCoroutine(FadeOut(fadeTime));
         }
+    }
+    
+    public void StopBGM()
+    {
+        if (fadeCoroutine != null)
+            StopCoroutine(fadeCoroutine);
+            
+        if (bgmSource != null)
+        {
+            bgmSource.Stop();
+            bgmSource.volume = 0f;
+        }
+    }
+    
+    public void SetBGMVolume(float volume)
+    {
+        if (bgmSource != null)
+            bgmSource.volume = Mathf.Clamp01(volume);
     }
 
     // 淡入效果

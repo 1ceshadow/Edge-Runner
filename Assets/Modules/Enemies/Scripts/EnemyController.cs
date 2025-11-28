@@ -1,4 +1,5 @@
 using UnityEngine;
+using VContainer;
 
 public class EnemyController : MonoBehaviour
 {
@@ -23,21 +24,37 @@ public class EnemyController : MonoBehaviour
 
     [Header("时缓能量奖励")]
     private PlayerMovement playerMovement;
+    
+    // VContainer 依赖注入
+    private IPlayerService playerService;
+    
+    [Inject]
+    public void Construct(IPlayerService playerService)
+    {
+        this.playerService = playerService;
+    }
 
     void Start()
     {
         // 初始化生命值
         currentHealth = maxHealth;
-        // 查找玩家
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
+        
+        // 使用注入的玩家服务
+        if (playerService != null)
         {
-            player = playerObj.transform;
-            playerMovement = playerObj.GetComponent<PlayerMovement>();
+            player = playerService.Transform;
+            
+            // 尝试获取 PlayerMovement 组件
+            if (playerService.TryGetComponent<PlayerMovement>(out var movement))
+            {
+                playerMovement = movement;
+            }
+            
+            Debug.Log("✓ EnemyController: 已通过 VContainer 获取玩家服务");
         }
         else
         {
-            Debug.LogError("EnemyController: 找不到玩家对象！请确保玩家有'Player'标签");
+            Debug.LogError("EnemyController: PlayerService 未注入，请检查 VContainer 配置");
         }
         
         shootTimer = shootInterval;

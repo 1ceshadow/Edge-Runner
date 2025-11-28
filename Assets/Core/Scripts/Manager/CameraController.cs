@@ -1,4 +1,5 @@
 using UnityEngine;
+using VContainer;
 
 public class CameraController : MonoBehaviour
 {
@@ -28,6 +29,16 @@ public class CameraController : MonoBehaviour
     private float cameraOrthographicSize;
     private float cameraAspect;
     
+    // VContainer 依赖注入
+    private IPlayerService playerService;
+    
+    [Inject]
+    public void Construct(IPlayerService playerService)
+    {
+        this.playerService = playerService;
+        Debug.Log("✓ CameraController: 玩家服务已注入");
+    }
+    
     void Start()
     {
         // 获取主相机
@@ -46,14 +57,11 @@ public class CameraController : MonoBehaviour
         cameraOrthographicSize = mainCamera.orthographicSize;
         cameraAspect = mainCamera.aspect;
         
-        // 如果没有设置目标，尝试查找玩家
-        if (target == null)
+        // 如果没有手动设置目标，使用注入的玩家服务
+        if (target == null && playerService != null)
         {
-            target = GameObject.FindGameObjectWithTag("Player")?.transform;
-            if (target == null)
-            {
-                Debug.LogWarning("请手动设置跟随目标！");
-            }
+            target = playerService.Transform;
+            Debug.Log("✓ CameraController: 已通过 VContainer 获取玩家 Transform");
         }
         
         // 立即移动到目标位置（避免初始跳跃）

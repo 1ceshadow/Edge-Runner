@@ -20,10 +20,10 @@ using UnityEngine.UI;
 using System.Collections;
 //using System.Linq;
 
-public class GameStateManager : MonoBehaviour
+public class GameStateManager : MonoBehaviour, IGameStateManager
 {
     // =============================================================
-    //                          单例实例
+    //                          单例实例（保留向后兼容）
     // =============================================================
     public static GameStateManager Instance { get; private set; }
 
@@ -51,11 +51,15 @@ public class GameStateManager : MonoBehaviour
     private PlayerInputActions inputs;
 
     // =============================================================
-    //                          游戏状态（公开只读）
+    //                          游戏状态（公开只读，实现接口）
     // =============================================================
-    public bool isPaused { get; private set; }
-    public bool isWin { get; private set; }
-    public bool isDead { get; private set; }
+    public bool IsPaused => isPaused;
+    public bool IsWin => isWin;
+    public bool IsDead => isDead;
+    
+    private bool isPaused;
+    private bool isWin;
+    private bool isDead;
 
     // =============================================================
     //                          Unity 生命周期
@@ -78,6 +82,8 @@ public class GameStateManager : MonoBehaviour
         CleanupInputSystem();
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
+    
+    // VContainer 会自动管理生命周期，无需手动注销
 
     private void Start()
     {
@@ -94,7 +100,8 @@ public class GameStateManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            Debug.Log("GameStateManager 创建成功 | 跨场景保留");
+            
+            Debug.Log("✓ GameStateManager 初始化完成（将通过 VContainer 注册）");
         }
         else if (Instance != this)
         {
@@ -216,9 +223,27 @@ public class GameStateManager : MonoBehaviour
     }
 
     // =============================================================
-    //                          公共接口（外部调用）
+    //                          公共接口（实现 IGameStateManager）
     // =============================================================
-    public void WinGame()
+    public void PauseGame()
+    {
+        if (!IsInGameScene()) return;
+
+        isPaused = true;
+        Time.timeScale = 0f;
+        pauseMenuUI?.SetActive(true);
+        Debug.Log("游戏暂停");
+    }
+
+    public void ResumeGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+        pauseMenuUI?.SetActive(false);
+        Debug.Log("游戏继续");
+    }
+    
+    public void TriggerWin()
     {
         if (isWin || isDead) return;
         isWin = true;
@@ -226,6 +251,30 @@ public class GameStateManager : MonoBehaviour
         if (winPanel) winPanel.SetActive(true);
         StopAllCoroutines();
         StartCoroutine(FadeInWin());
+    }
+    
+    public void TriggerDeath()
+    {
+        PlayerDieWithDelay(1f);
+    }
+    
+    public void RestartLevel()
+    {
+        RestartGame();
+    }
+    
+    public void BackToMainMenu()
+    {
+        BackToMenu();
+    }
+    
+    public void LoadNextLevel()
+    {
+        GoToNextLevel();
+    }
+    public void WinGame()
+    {
+        TriggerWin();
     }
 
     public void PlayerDieWithDelay(float delay = 1f)
@@ -246,25 +295,8 @@ public class GameStateManager : MonoBehaviour
     //public void RestartLevel() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
     // =============================================================
-    //                          游戏流程控制
+    //                          游戏流程控制（内部实现）
     // =============================================================
-    private void PauseGame()
-    {
-        if (!IsInGameScene()) return;
-
-        isPaused = true;
-        Time.timeScale = 0f;
-        pauseMenuUI?.SetActive(true);
-        Debug.Log("游戏暂停");
-    }
-
-    public void ResumeGame()
-    {
-        isPaused = false;
-        Time.timeScale = 1f;
-        pauseMenuUI?.SetActive(false);
-        Debug.Log("游戏继续");
-    }
 
     public void RestartGame()
     {
