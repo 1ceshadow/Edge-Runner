@@ -5,30 +5,55 @@ using EdgeRunner.Events;
 using EdgeRunner.Player;
 
 /// <summary>
-/// 能量条 UI - 使用事件驱动更新
-/// 完全解耦，不直接引用任何玩家脚本
+/// 能量条 UI - 支持直接引用（流畅）和事件驱动（解耦）两种模式
+/// 优先使用直接引用模式以保证流畅性
 /// </summary>
 public class EnergyBar : MonoBehaviour
 {
     [Header("UI 引用")]
     public Image energyBarImg;
     public Image RewardEffecctImg;
+
+    [Header("数据源（可选，留空则使用事件驱动）")]
+    [SerializeField] private PlayerController playerController;
     
     private Coroutine rewardCoroutine;
     
-    // 缓存能量值（用于事件驱动模式）
+    // 缓存能量值（用于事件驱动模式的后备）
     private float cachedCurrentEnergy;
     private float cachedMaxEnergy = 80f;
 
+    // 是否使用直接引用模式
+    private bool useDirectReference;
+
     void Start()
     {
-        RewardEffecctImg.fillAmount = 0f;
-        Debug.Log("✓ EnergyBar: 使用事件驱动模式");
+        if (RewardEffecctImg != null)
+        {
+            RewardEffecctImg.fillAmount = 0f;
+        }
+
+        // 尝试自动查找 PlayerController
+        if (playerController == null)
+        {
+            playerController = FindFirstObjectByType<PlayerController>();
+        }
+
+        useDirectReference = playerController != null;
+        
+        if (useDirectReference)
+        {
+            Debug.Log("✓ EnergyBar: 使用直接引用模式（流畅）");
+        }
+        else
+        {
+            Debug.Log("✓ EnergyBar: 使用事件驱动模式（解耦）");
+        }
     }
 
     void OnEnable()
     {
-        // 🔔 订阅事件
+        // 🔔 订阅事件（作为后备或奖励特效）
         EventBus.Subscribe<PlayerEnergyChangedEvent>(OnEnergyChanged);
         EventBus.Subscribe<PlayerRewardedEvent>(OnPlayerRewarded);
     }
@@ -42,10 +67,22 @@ public class EnergyBar : MonoBehaviour
 
     void Update()
     {
-        // 事件驱动模式：使用缓存值
-        energyBarImg.fillAmount = cachedMaxEnergy > 0 
-            ? cachedCurrentEnergy / cachedMaxEnergy 
-            : 0f;
+        float current, max;
+
+        if (useDirectReference && playerController != null)
+        {
+            // 直接引用模式：每帧读取，最流畅
+            current = playerController.CurrentEnergy;
+            max = playerController.MaxEnergy;
+        }
+        else
+        {
+            // 事件驱动模式：使用缓存值
+            current = cachedCurrentEnergy;
+            max = cachedMaxEnergy;
+        }
+
+        energyBarImg.fillAmount = max > 0 ? current / max : 0f;
     }
 
     // ═══════════════════════════════════════════════════════════════

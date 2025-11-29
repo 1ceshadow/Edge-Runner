@@ -24,6 +24,7 @@ namespace EdgeRunner.Player.Skills
 
         private bool isTimeSlowed;
         private Coroutine timeSlowVisualCoroutine;
+        private GameObject timeSlowOverlay; // 缓存 overlay 对象，用于手动销毁
 
         public bool IsTimeSlowed => isTimeSlowed;
 
@@ -164,6 +165,13 @@ namespace EdgeRunner.Player.Skills
                 timeSlowVisualCoroutine = null;
             }
 
+            // 销毁 overlay 对象
+            if (timeSlowOverlay != null)
+            {
+                Destroy(timeSlowOverlay);
+                timeSlowOverlay = null;
+            }
+
             // 发布事件
             EventBus.Publish(new TimeSlowStateChangedEvent
             {
@@ -184,10 +192,16 @@ namespace EdgeRunner.Player.Skills
             SpriteRenderer playerSR = controller.GetComponentInChildren<SpriteRenderer>();
             if (playerSR == null || playerSR.sprite == null) yield break;
 
-            GameObject overlay = new GameObject("TimeSlowOverlay");
-            overlay.transform.SetParent(controller.transform, false);
+            // 清理之前可能残留的 overlay
+            if (timeSlowOverlay != null)
+            {
+                Destroy(timeSlowOverlay);
+            }
 
-            var sr = overlay.AddComponent<SpriteRenderer>();
+            timeSlowOverlay = new GameObject("TimeSlowOverlay");
+            timeSlowOverlay.transform.SetParent(controller.transform, false);
+
+            var sr = timeSlowOverlay.AddComponent<SpriteRenderer>();
             sr.sprite = playerSR.sprite;
             sr.sortingLayerID = playerSR.sortingLayerID;
             sr.sortingOrder = playerSR.sortingOrder + 1;
@@ -207,7 +221,12 @@ namespace EdgeRunner.Player.Skills
                 yield return null;
             }
 
-            Destroy(overlay);
+            // 正常退出时销毁
+            if (timeSlowOverlay != null)
+            {
+                Destroy(timeSlowOverlay);
+                timeSlowOverlay = null;
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -237,6 +256,13 @@ namespace EdgeRunner.Player.Skills
 
         private void OnDisable()
         {
+            // 清理 overlay（即使 isTimeSlowed 为 false 也要清理，防止残留）
+            if (timeSlowOverlay != null)
+            {
+                Destroy(timeSlowOverlay);
+                timeSlowOverlay = null;
+            }
+
             if (!isTimeSlowed)
             {
                 return;
